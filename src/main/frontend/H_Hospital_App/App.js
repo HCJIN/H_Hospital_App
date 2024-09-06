@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar, StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
+import { StatusBar, StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import LoginScreen from './LoginScreen';
+import SignUpScreen from './SignUpScreen';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   const [statusBarVisible, setStatusBarVisible] = useState(true);
@@ -21,50 +27,25 @@ export default function App() {
 
   return (
     <TouchableWithoutFeedback onPress={handleTouch}>
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <View style={styles.spanWrapper}>
-            <Text style={styles.span}>로그인</Text>
-          </View>
-          <View style={styles.spanWrapper}>
-            <Text style={styles.span}>회원가입</Text>
-          </View>
-        </View>
-        <Text>Open up App.js to start working on your app!</Text>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ title: '로그인' }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
+            options={{ title: '회원가입' }}
+          />
+        </Stack.Navigator>
         <StatusBar hidden={!statusBarVisible} />
-      </View>
+      </NavigationContainer>
     </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerContainer: {
-    width: '100%', // 헤더가 화면의 전체 너비를 차지하도록 설정
-    backgroundColor: '#f0f0f0', // 헤더의 배경색
-    padding: 10, // 패딩을 추가하여 헤더와 내용 사이에 여백 추가
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    alignItems: 'center', // 텍스트를 가운데 정렬
-    flexDirection: 'row', // 텍스트가 가로로 정렬되도록 설정
-  },
-  header: {
-    width: '90%',
-    fontSize: 24,
-    fontWeight: 'bold',
-    flexDirection: 'row', // 텍스트가 가로로 정렬되도록 설정
-  },
-  spanWrapper: {
-    marginLeft: 10, // 왼쪽에만 마진 추가
-  },
-  span: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  
 });
