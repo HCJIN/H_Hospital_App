@@ -30,15 +30,20 @@ export default function SignUpScreen({ navigation }) {
   
 
   // 회원가입시 자바로 데이터를 보내는 함수
-  const insertMemberData = async () => {
-    try {
-      const response = await axios.post('http://localhost:8080/member/insertMember', regMember);
+  function insertMemberData() {
+    // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
+  
+    axios.post('/member/insertMember', regMember)
+    .then((response) => {
       alert('회원가입이 완료되었습니다.');
       navigation.navigate('Login');
-    } catch (error) {
-      console.error('Error:', error.response || error.message);
-    }
-  };
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+  
+  
 
   return (
     <View style={styles.container}>
@@ -51,6 +56,9 @@ export default function SignUpScreen({ navigation }) {
         placeholder='이름을 입력하십시오.'
         value={regMember.memName}
         onChangeText={(text) => handleChange('memName', text)}
+        autoCapitalize='none'
+        spellCheck={false}
+        autoCorrect={false}
         keyboardType="default" // 기본 키보드 타입 설정 (한글 포함) 
       />
 
@@ -61,6 +69,9 @@ export default function SignUpScreen({ navigation }) {
           placeholder='이메일을 입력하십시오.'
           value={regMember.email}
           onChangeText={(text) => handleChange('email', text)}
+          autoCapitalize='none'
+          spellCheck={false}
+          autoCorrect={false}
           keyboardType="email-address"
         />
         <Button 
@@ -85,6 +96,9 @@ export default function SignUpScreen({ navigation }) {
         secureTextEntry={true} // 비밀번호 입력 시 문자를 숨깁니다.
         value={regMember.memPw}
         onChangeText={(text) => handleChange('memPw', text)}
+        autoCapitalize='none'
+        spellCheck={false}
+        autoCorrect={false}
         keyboardType="default" // 기본 키보드 설정
       />
 
