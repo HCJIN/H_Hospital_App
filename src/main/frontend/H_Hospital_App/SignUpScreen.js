@@ -25,45 +25,22 @@ export default function SignUpScreen({ navigation }) {
       [field]: value
     }));
   };
-  console.log(regMember)
-
-  const validateForm = () => {
-    if (!regMember.memName || !regMember.email || !regMember.memTel || !regMember.memPw) {
-      setError('모든 필드를 입력해주세요.');
-      return false;
-    }
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(regMember.email)) {
-      setError('유효한 이메일 주소를 입력해주세요.');
-      return false;
-    }
-    // 전화번호 형식 검증 (간단한 예시)
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!phoneRegex.test(regMember.memTel)) {
-      setError('유효한 전화번호를 입력해주세요.');
-      return false;
-    }
-    return true;
-  };
-
   
+  console.log(regMember)
 
   // 회원가입시 자바로 데이터를 보내는 함수
   const insertMemberData = async () => {
     // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
-    if (!validateForm()) return;
   
-    try {
-      const response = await axios.post('http://192.168.30.77:8080/member/insertMember', regMember);
+    axios.post('http://localhost:8080/member/insertMember', regMember)
+    .then((res) => {
       alert('회원가입이 완료되었습니다.');
       navigation.navigate('Login');
-    } catch (error) {
-      console.error(error);
-    }
+    })
+    .catch((error) => {
+      console.log(error)
+    })  
   }
-  
-  
 
   return (
     <View style={styles.container}>

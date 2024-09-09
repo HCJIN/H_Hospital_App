@@ -12,7 +12,7 @@
         <result column="MEM_ROLE"               property="memRole"/>
     </resultMap>
 
-    <select id="getMemberList" resultMap="member">
+    <select id="getMember" resultMap="member">
         SELECT MEM_NUM,
             EMAIL,
             MEM_PW,
@@ -20,6 +20,8 @@
             MEM_TEL,
             MEM_ROLE
         FROM HOSPITAL_MEMBER
+        WHERE EMAIL = #{email}
+        AND MEM_PW = #{memPw};
     </select>
 
     <insert id="insertMember">
