@@ -30,18 +30,20 @@ export default function SignUpScreen({ navigation }) {
   
 
   // 회원가입시 자바로 데이터를 보내는 함수
-  function insertMemberData(){
-
-    // API URL을 하드코딩합니다.
-    const apiUrl = 'http://192.168.30.77:8080/member/insertMember'; // 또는 실제 서버 IP 주소
-
-    axios.post(apiUrl , regMember)
-    .then((res) => {
-      alert('회원가입이 완료되었습니다.')
-      navigation.navigate('Login')
+  function insertMemberData() {
+    // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
+  
+    axios.post('/member/insertMember', regMember)
+    .then((response) => {
+      alert('회원가입이 완료되었습니다.');
+      navigation.navigate('Login');
     })
-    .catch((error) => {console.log(error)})
+    .catch((error) => {
+      console.log(error)
+    });
   }
+  
+  
 
   return (
     <View style={styles.container}>
