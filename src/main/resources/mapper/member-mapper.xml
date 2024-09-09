@@ -11,6 +11,21 @@
         <result column="MEM_TEL"                property="memTel"/>
         <result column="MEM_ROLE"               property="memRole"/>
     </resultMap>
+
+    <insert id="insertMember">
+        INSERT INTO HOSPITAL_MEMBER(
+            EMAIL
+            , MEM_PW
+            , MEM_NAME
+            , MEM_TEL
+        ) VALUES(
+            #{email}
+            , #{memPw}
+            , #{memName}
+            , #{memTel}
+        );
+    </insert>
+
 </mapper>
 
 
