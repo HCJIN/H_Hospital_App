@@ -20,7 +20,7 @@ export default function MainScreen() {
         console.error('Error fetching device ID:', error);
       }
     };
-    
+
     fetchDeviceId();
   }, []);
 
@@ -86,7 +86,7 @@ export default function MainScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>기기 간 거리 계산</Text>
-      
+
       <TextInput
         style={styles.input}
         placeholder="사용자 ID 입력"
@@ -94,15 +94,15 @@ export default function MainScreen() {
         onChangeText={setUserId}
         keyboardType="default"
       />
-      
+
       <Button title="내 위치 가져오기" onPress={getLocation} />
-      
+
       {currentLocation && (
         <Text style={styles.text}>
           내 위치: {currentLocation.latitude}, {currentLocation.longitude}
         </Text>
       )}
-      
+
       {distance !== null && (
         <Text style={styles.text}>
           다른 기기와의 거리: {distance} km

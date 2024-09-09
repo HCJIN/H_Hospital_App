@@ -2,18 +2,31 @@ package com.green.H_Hospital_App.location.service;
 
 import com.green.H_Hospital_App.location.util.Haversine;
 import com.green.H_Hospital_App.location.model.Location;
-import com.green.H_Hospital_App.location.service.LocationRepository; // Repository 추가
+import com.green.H_Hospital_App.location.service.LocationRepository; // Repository 경로 수정
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LocationServiceImpl {
+
     @Autowired
     private LocationRepository locationRepository;
 
     // 위치 저장
     public void saveLocation(Location location) {
         locationRepository.save(location);
+    }
+
+    // 위치 업데이트
+    public void updateLocation(Location location) {
+        Location existingLocation = locationRepository.findTopByUserIdOrderByIdDesc(location.getUserId());
+        if (existingLocation != null) {
+            existingLocation.setLatitude(location.getLatitude());
+            existingLocation.setLongitude(location.getLongitude());
+            locationRepository.save(existingLocation);
+        } else {
+            throw new IllegalArgumentException("Location for the given user ID not found.");
+        }
     }
 
     // 거리 계산
