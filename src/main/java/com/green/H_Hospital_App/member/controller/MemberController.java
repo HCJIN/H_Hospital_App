@@ -31,3 +31,5 @@ public class MemberController {
         memberService.insertMember(memberVO);
     }
 }
+
+

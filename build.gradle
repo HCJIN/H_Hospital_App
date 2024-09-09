@@ -24,9 +24,14 @@ repositories {
 }
 
 dependencies {
+
 	// Spring Boot 기본 웹과 보안 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+<<<<<<< HEAD
 	//implementation 'org.springframework.boot:spring-boot-starter-security'
+=======
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+>>>>>>> hcj
 
 	// JPA 관련 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
