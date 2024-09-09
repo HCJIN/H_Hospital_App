@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface MemberService {
 
-    List<MemberVO> getMemberList();
+    MemberVO getMember(String email, String memPw);
 
     // 회원가입시 데이터를 받아오는 메서드
     void insertMember(MemberVO memberVO);
