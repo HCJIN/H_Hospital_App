@@ -38,5 +38,5 @@
     "@babel/core": "^7.20.0"
   },
   "private": true,
-  "proxy": "http://192.168.30.40:8081"
+  "proxy": "https://4468-58-151-101-222.ngrok-free.app"
 }
