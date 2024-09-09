@@ -27,6 +27,7 @@ public class MemberController {
     // 회원가입시 데이터를 받아오는 메서드
     @PostMapping("/insertMember")
     public void insertMember(@RequestBody MemberVO memberVO){
+        System.out.println(111);
         memberService.insertMember(memberVO);
     }
 }
