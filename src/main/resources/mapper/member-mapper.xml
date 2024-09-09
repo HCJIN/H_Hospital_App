@@ -12,7 +12,6 @@
         <result column="MEM_ROLE"               property="memRole"/>
     </resultMap>
 
-<<<<<<< HEAD
     <select id="getMemberList" resultMap="member">
         SELECT MEM_NUM,
             EMAIL,
@@ -22,7 +21,7 @@
             MEM_ROLE
         FROM HOSPITAL_MEMBER
     </select>
-=======
+
     <insert id="insertMember">
         INSERT INTO HOSPITAL_MEMBER(
             EMAIL
@@ -37,7 +36,6 @@
         );
     </insert>
 
->>>>>>> main
 </mapper>
 
 

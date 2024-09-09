@@ -21,13 +21,13 @@ export default function LoginScreen({ navigation }) {
 
   //자바에서 데이터 받아오기
   useEffect(() => {
-    axios.get("http://localhost:8081/member/memberList")
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    axios.get("http://192.168.30.40:8081/member/memberList")
+    .then((res) => {
+      console.log(res.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   }, []);
 
   return (
