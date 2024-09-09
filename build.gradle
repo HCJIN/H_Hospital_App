@@ -24,14 +24,29 @@ repositories {
 }
 
 dependencies {
-	compileOnly("org.springframework.boot:spring-boot-devtools") //html새로고침
-	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16' //쿼리 로그 라이브러리 추가
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// Spring Boot 기본 웹과 보안 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JPA 관련 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'org.hsqldb:hsqldb' // H2 데이터베이스가 일반적으로 테스트용으로 사용됨
+
+	// MyBatis와 MariaDB 연동
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
-	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	// 로깅을 위한 log4jdbc (SQL 쿼리 로깅)
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16'
+
+	// Lombok (코드 생성 자동화)
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Spring DevTools (자동 새로고침을 위한 도구, 개발 환경에서만 사용)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 테스트 의존성
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
 	testImplementation 'org.springframework.security:spring-security-test'
