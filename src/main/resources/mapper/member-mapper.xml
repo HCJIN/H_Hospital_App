@@ -3,7 +3,14 @@
 
 <!-- 해당 파일에 모든 쿼리문을 작성 -->
 <mapper namespace="memberMapper">
-	
+    <resultMap id="member" type="com.green.H_Hospital_App.member.vo.MemberVO">
+        <id column="MEM_NUM"                    property="memNum" />
+        <result column="EMAIL"                  property="email" />
+        <result column="MEM_PW"                 property="memPw"/>
+        <result column="MEM_NAME"               property="memName"/>
+        <result column="MEM_TEL"                property="memTel"/>
+        <result column="MEM_ROLE"               property="memRole"/>
+    </resultMap>
 </mapper>
 
 
