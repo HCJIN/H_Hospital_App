@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import * as Device from 'expo-device';
 
 export default function LoginScreen({ navigation }) {
 
@@ -16,6 +18,17 @@ export default function LoginScreen({ navigation }) {
       [field] : value
     }));
   }
+
+  //자바에서 데이터 받아오기
+  useEffect(() => {
+    axios.get("http://localhost:8081/member/memberList")
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <View style={styles.container}>

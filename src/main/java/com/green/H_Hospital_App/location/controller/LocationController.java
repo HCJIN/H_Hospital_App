@@ -16,6 +16,7 @@ public class LocationController {
     public String saveLocation(@RequestBody LocationRequest locationRequest) {
         // 위치 저장
         locationService.saveLocation(
+                locationRequest.getDeviceId(), // 디바이스 ID 추가
                 locationRequest.getUserId(),
                 locationRequest.getLatitude(),
                 locationRequest.getLongitude()
@@ -34,9 +35,18 @@ public class LocationController {
 }
 
 class LocationRequest {
-    private Long userId; // 사용자 ID 추가
+    private String deviceId; // 디바이스 ID 추가
+    private Long userId;
     private Double latitude;
     private Double longitude;
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
 
     public Long getUserId() {
         return userId;

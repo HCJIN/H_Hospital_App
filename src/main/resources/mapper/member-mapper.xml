@@ -11,6 +11,16 @@
         <result column="MEM_TEL"                property="memTel"/>
         <result column="MEM_ROLE"               property="memRole"/>
     </resultMap>
+
+    <select id="getMemberList" resultMap="member">
+        SELECT MEM_NUM,
+            EMAIL,
+            MEM_PW,
+            MEM_NAME,
+            MEM_TEL,
+            MEM_ROLE
+        FROM HOSPITAL_MEMBER
+    </select>
 </mapper>
 
 

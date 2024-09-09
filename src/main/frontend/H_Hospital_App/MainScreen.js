@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
+import * as Device from 'expo-device';
+import { v4 as uuidv4 } from 'uuid'; // UUID 생성 패키지 추가
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [distance, setDistance] = useState(null);
   const [userId, setUserId] = useState(''); // 사용자 ID 상태 추가
+  const [deviceId, setDeviceId] = useState(''); // 디바이스 ID 상태 추가
+
+  useEffect(() => {
+    // UUID를 생성하여 상태에 저장
+    const fetchDeviceId = () => {
+      const id = uuidv4();
+      setDeviceId(id);
+    };
+    
+    fetchDeviceId();
+  }, []);
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -21,10 +34,10 @@ export default function MainScreen() {
     });
 
     // 위치 정보를 서버에 저장
-    sendLocationToServer(userId, location.coords.latitude, location.coords.longitude);
+    sendLocationToServer(deviceId, userId, location.coords.latitude, location.coords.longitude);
   };
 
-  const sendLocationToServer = async (userId, latitude, longitude) => {
+  const sendLocationToServer = async (deviceId, userId, latitude, longitude) => {
     try {
       const response = await fetch('http://localhost:8080/location/save', {
         method: 'POST',
@@ -32,6 +45,7 @@ export default function MainScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          deviceId,
           userId,
           latitude,
           longitude,
