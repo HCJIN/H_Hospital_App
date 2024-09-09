@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
-import * as Device from 'expo-device';
+import { v4 as uuidv4 } from 'uuid'; // UUID 생성기
 import 'react-native-get-random-values';
 
 export default function MainScreen() {
@@ -11,10 +11,10 @@ export default function MainScreen() {
   const [deviceId, setDeviceId] = useState(''); // 디바이스 ID 상태 추가
 
   useEffect(() => {
-    // expo-device를 사용하여 기기 고유 ID 생성
-    const fetchDeviceId = async () => {
+    // UUID를 사용하여 기기 고유 ID 생성
+    const fetchDeviceId = () => {
       try {
-        const id = await Device.getDeviceId(); // 또는 다른 기기 식별 방법
+        const id = uuidv4(); // UUID 생성
         setDeviceId(id);
       } catch (error) {
         console.error('Error fetching device ID:', error);
@@ -43,25 +43,41 @@ export default function MainScreen() {
 
   const sendLocationToServer = async (deviceId, userId, latitude, longitude) => {
     try {
-      const response = await fetch('http://localhost:8081/location/save', {
+      if (!deviceId || !userId || !latitude || !longitude) {
+        throw new Error('필수 필드가 누락되었습니다.');
+      }
+
+      const requestBody = JSON.stringify({
+        deviceId,
+        userId,
+        latitude,
+        longitude,
+      });
+
+      console.log('Sending request:', requestBody);
+
+      const response = await fetch('https://ab7a-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          deviceId,
-          userId,
-          latitude,
-          longitude,
-        }),
+        body: requestBody,
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`HTTP error! status: ${response.status}, ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
       }
 
       const data = await response.json();
-      setDistance(data.distance); // 서버에서 계산된 거리 받기
+      console.log('Response data:', data); // 확인 로그 추가
+
+      if (data.distance !== undefined) {
+        setDistance(data.distance); // 서버에서 계산된 거리 받기
+      } else {
+        console.error('Distance data is missing in response');
+      }
     } catch (error) {
       console.error('Error:', error);
     }
@@ -76,7 +92,7 @@ export default function MainScreen() {
         placeholder="사용자 ID 입력"
         value={userId}
         onChangeText={setUserId}
-        keyboardType="numeric"
+        keyboardType="default"
       />
       
       <Button title="내 위치 가져오기" onPress={getLocation} />

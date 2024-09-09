@@ -34,7 +34,7 @@ export default function SignUpScreen({ navigation }) {
     // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
   
     try {
-      const response = await axios.post('http://192.168.30.77:8080/member/insertMember', regMember);
+      const response = await axios.post('https://ab7a-58-151-101-222.ngrok-free.app/member/insertMember', regMember);
       alert('회원가입이 완료되었습니다.');
       navigation.navigate('Login');
     } catch (error) {

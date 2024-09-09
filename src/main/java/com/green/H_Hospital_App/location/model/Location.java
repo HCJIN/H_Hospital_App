@@ -13,7 +13,7 @@ public class Location {
     private Long id;
 
     private String deviceId; // 디바이스 ID를 문자열로 저장
-    private Long userId; // 사용자 ID를 추가
+    private String userId; // 사용자 ID를 문자열로 저장
     private Double latitude;
     private Double longitude;
 
@@ -21,7 +21,7 @@ public class Location {
     public Location() {}
 
     // 매개변수를 받는 생성자
-    public Location(String deviceId, Long userId, Double latitude, Double longitude) {
+    public Location(String deviceId, String userId, Double latitude, Double longitude) {
         this.deviceId = deviceId;
         this.userId = userId;
         this.latitude = latitude;
@@ -45,11 +45,11 @@ public class Location {
         this.deviceId = deviceId;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

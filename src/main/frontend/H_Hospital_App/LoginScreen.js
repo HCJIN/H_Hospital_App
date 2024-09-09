@@ -21,23 +21,13 @@ export default function LoginScreen({ navigation }) {
 
   //자바에서 데이터 받아오기
   useEffect(() => {
-<<<<<<< HEAD
-    axios.get("http://192.168.30.77:8080/member/memberList")
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-=======
-    axios.get("https://4468-58-151-101-222.ngrok-free.app/member/memberList")
+    axios.get("https://ab7a-58-151-101-222.ngrok-free.app/member/memberList")
     .then((res) => {
       console.log(res.data);
     })
     .catch((error) => {
       console.log(error);
     });
->>>>>>> hcj
   }, []);
 
   return (

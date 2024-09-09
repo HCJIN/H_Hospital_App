@@ -21,11 +21,7 @@ public class MemberServiceImpl implements MemberService{
     // 회원가입시 데이터를 받아오는 메서드
     @Override
     public void insertMember(MemberVO memberVO) {
-
         sqlSession.insert("memberMapper.insertMember", memberVO);
-
-        sqlSession.insert("memberMapper.insertMember");
-
     }
 
 }

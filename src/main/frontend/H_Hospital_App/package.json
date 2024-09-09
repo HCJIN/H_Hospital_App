@@ -38,10 +38,5 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-<<<<<<< HEAD
   "private": true
-=======
-  "private": true,
-  "proxy": "https://4468-58-151-101-222.ngrok-free.app"
->>>>>>> hcj
 }
