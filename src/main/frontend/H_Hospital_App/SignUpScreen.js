@@ -27,11 +27,32 @@ export default function SignUpScreen({ navigation }) {
   };
   console.log(regMember)
 
+  const validateForm = () => {
+    if (!regMember.memName || !regMember.email || !regMember.memTel || !regMember.memPw) {
+      setError('모든 필드를 입력해주세요.');
+      return false;
+    }
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(regMember.email)) {
+      setError('유효한 이메일 주소를 입력해주세요.');
+      return false;
+    }
+    // 전화번호 형식 검증 (간단한 예시)
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(regMember.memTel)) {
+      setError('유효한 전화번호를 입력해주세요.');
+      return false;
+    }
+    return true;
+  };
+
   
 
   // 회원가입시 자바로 데이터를 보내는 함수
   const insertMemberData = async () => {
     // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
+    if (!validateForm()) return;
   
     try {
       const response = await axios.post('http://192.168.30.77:8080/member/insertMember', regMember);
