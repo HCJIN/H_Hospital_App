@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as Device from 'expo-device';
-import { v4 as uuidv4 } from 'uuid'; // UUID 생성 패키지 추가
+import 'react-native-get-random-values';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -11,10 +11,14 @@ export default function MainScreen() {
   const [deviceId, setDeviceId] = useState(''); // 디바이스 ID 상태 추가
 
   useEffect(() => {
-    // UUID를 생성하여 상태에 저장
-    const fetchDeviceId = () => {
-      const id = uuidv4();
-      setDeviceId(id);
+    // expo-device를 사용하여 기기 고유 ID 생성
+    const fetchDeviceId = async () => {
+      try {
+        const id = await Device.getDeviceId(); // 또는 다른 기기 식별 방법
+        setDeviceId(id);
+      } catch (error) {
+        console.error('Error fetching device ID:', error);
+      }
     };
     
     fetchDeviceId();
@@ -39,7 +43,7 @@ export default function MainScreen() {
 
   const sendLocationToServer = async (deviceId, userId, latitude, longitude) => {
     try {
-      const response = await fetch('http://localhost:8080/location/save', {
+      const response = await fetch('http://localhost:8081/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,12 +56,11 @@ export default function MainScreen() {
         }),
       });
 
-      // 응답 내용을 텍스트로 읽어보세요
-      const text = await response.text();
-      console.log('Server response:', text);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      // JSON으로 변환 시도
-      const data = JSON.parse(text);
+      const data = await response.json();
       setDistance(data.distance); // 서버에서 계산된 거리 받기
     } catch (error) {
       console.error('Error:', error);
