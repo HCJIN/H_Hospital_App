@@ -41,14 +41,20 @@ export default function SignUpScreen({ navigation }) {
         keyboardType="default" // 기본 키보드 타입 설정 (한글 포함) 
       />
 
-      {/* 이메일 입력 필드 */}
-      <TextInput 
-        style={styles.input}
-        placeholder='이메일을 입력하십시오.'
-        value={regMember.email}
-        onChangeText={(text) => handleChange('email', text)}
-        keyboardType="email-address" // 이메일 입력에 적합한 키보드 설정 
-      />
+      {/* 이메일과 버튼을 가로로 배치하는 View */}
+      <View style={styles.emailContainer}>
+        <TextInput 
+          style={styles.emailInput}
+          placeholder='이메일을 입력하십시오.'
+          value={regMember.email}
+          onChangeText={(text) => handleChange('email', text)}
+          keyboardType="email-address"
+        />
+        <Button 
+          title="확인" 
+          // onPress={() => console.log('이메일 확인 버튼 클릭')}
+        />
+      </View>
 
       {/* 전화번호 입력 필드 */}
       <TextInput 
@@ -97,5 +103,24 @@ const styles = StyleSheet.create({
     marginBottom: 15, // 각 입력 필드 사이의 간격 설정
     width: '80%', // 입력 필드의 너비 설정
     paddingHorizontal: 10, // 입력 필드의 좌우 패딩 설정
+  },
+  emailContainer: {
+    flexDirection: 'row', // 이메일 입력 필드와 버튼을 가로로 배치
+    alignItems: 'center', // 세로 방향으로 정렬
+    width: '80%', // 컨테이너의 너비 설정
+    marginBottom: 15
+  },
+  emailInput: {
+    flex: 1, // 입력 필드가 가능한 많은 공간을 차지하도록 설정
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginRight: 10, // 입력 필드와 버튼 사이의 간격 설정
+    paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
   },
 });
