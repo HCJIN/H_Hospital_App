@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
@@ -26,12 +27,15 @@ export default function SignUpScreen({ navigation }) {
   };
   console.log(regMember)
 
-  useEffect(()=>{
-    axios
-    .get()
-    .then()
-    .catch()
-  },[])
+  // 회원가입시 자바로 데이터를 보내는 함수
+  function insertMemberData(){
+    axios.post(`/member/insertMember`, regMember)
+    .then((res) => {
+      alert('회원가입이 완료되었습니다.')
+      navigation.navigate('Login')
+    })
+    .catch((error) => {console.log(error)})
+  }
 
   return (
     <View style={styles.container}>
@@ -85,7 +89,7 @@ export default function SignUpScreen({ navigation }) {
       <Button
         title="회원가입"
         // 버튼 클릭 시 'Login' 화면으로 이동합니다.
-        onPress={() => navigation.navigate('Login')}
+        onPress={() => insertMemberData()}
       />
     </View>
   );
