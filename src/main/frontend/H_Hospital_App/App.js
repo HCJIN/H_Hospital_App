@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './LoginScreen';
 import SignUpScreen from './SignUpScreen';
+import MainScreen from './MainScreen';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,11 @@ export default function App() {
             name="SignUp"
             component={SignUpScreen}
             options={{ title: '회원가입' }}
+          />
+          <Stack.Screen 
+            name='Main'
+            component={MainScreen}
+            options={{title: '메인화면'}}
           />
         </Stack.Navigator>
         <StatusBar hidden={!statusBarVisible} />
