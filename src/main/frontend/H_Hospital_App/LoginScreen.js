@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }) {
   }
 
   useEffect(() => {
-    if (memberData.memName) {
+    if (memberData && memberData.memName) {
       alert(memberData.memName + ' 환영합니다.');
     }
   }, [memberData]);
@@ -52,6 +52,8 @@ export default function LoginScreen({ navigation }) {
   };
 
   console.log(memberData)
+
+  
 
   return (
     <View style={styles.container}>
