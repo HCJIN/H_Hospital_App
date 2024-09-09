@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 
 // SignUpScreen 컴포넌트를 정의합니다.
@@ -12,7 +13,6 @@ export default function SignUpScreen({ navigation }) {
     memPw: ''
   });
 
-
   // 상태를 업데이트하는 핸들러 함수입니다.
   const handleChange = (field, value) => {
     // prevState를 이용해 이전 상태를 가져옵니다. 이전 상태의 모든 필드를 유지하면서 특정 필드만 업데이트합니다.
@@ -24,8 +24,14 @@ export default function SignUpScreen({ navigation }) {
       [field]: value
     }));
   };
-
   console.log(regMember)
+
+  useEffect(()=>{
+    axios
+    .get()
+    .then()
+    .catch()
+  },[])
 
   return (
     <View style={styles.container}>
