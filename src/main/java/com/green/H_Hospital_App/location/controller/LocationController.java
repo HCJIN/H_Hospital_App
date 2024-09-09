@@ -41,4 +41,10 @@ public class LocationController {
         double distance = locationService.calculateDistance(patientUserId, nurseUserId);
         return "환자와 간호사 간의 거리: " + distance + " km";
     }
+
+    // 위치 업데이트
+    @PostMapping("/updateLocation")
+    public void updateLocation(@RequestBody Location location) {
+        locationService.saveLocation(location);
+    }
 }
