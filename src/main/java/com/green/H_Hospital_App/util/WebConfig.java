@@ -12,7 +12,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")  // 모든 경로에 대해 CORS 설정
                 .allowedOrigins(
                         "https://f98b-58-151-101-222.ngrok-free.app",  // 새 ngrok 주소
-                        "https://gendhne-hcjin-8081.exp.direct"  // 앱의 출처 추가
+                        "https://gendhne-hcjin-8081.exp.direct", // 앱의 출처 추가
+                        "https://c8e8oiy-ldhee-8081.exp.direct"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE")  // 허용할 HTTP 메서드
                 .allowedHeaders("*")  // 허용할 헤더
