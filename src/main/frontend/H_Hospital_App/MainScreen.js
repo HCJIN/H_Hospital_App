@@ -7,21 +7,13 @@ import 'react-native-get-random-values';
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [distance, setDistance] = useState(null);
-  const [email, setEmail] = useState(''); // 이메일 상태 추가
-  const [deviceId, setDeviceId] = useState(''); // 디바이스 ID 상태 추가
+  const [email, setEmail] = useState('');
+  const [inputEmail, setInputEmail] = useState('');
+  const [deviceId, setDeviceId] = useState('');
 
   useEffect(() => {
-    // UUID를 사용하여 기기 고유 ID 생성
-    const fetchDeviceId = () => {
-      try {
-        const id = uuidv4(); // UUID 생성
-        setDeviceId(id);
-      } catch (error) {
-        console.error('Error fetching device ID:', error);
-      }
-    };
-
-    fetchDeviceId();
+    const id = uuidv4();
+    setDeviceId(id);
   }, []);
 
   const getLocation = async () => {
@@ -37,33 +29,38 @@ export default function MainScreen() {
       longitude: location.coords.longitude
     });
 
-    // 위치 정보를 서버에 저장
     sendLocationToServer(deviceId, email, location.coords.latitude, location.coords.longitude);
   };
 
   const sendLocationToServer = async (deviceId, email, latitude, longitude) => {
     try {
-      if (!deviceId || !email || !latitude || !longitude) {
+      // 빈 문자열을 null로 변환
+      const trimmedEmail = email.trim() || null;
+      const trimmedInputEmail = inputEmail.trim() || null;
+  
+      // 유효성 검사
+      if (!deviceId || !trimmedEmail || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
   
-      const requestBody = JSON.stringify({
+      const requestBody = {
         location: {
           deviceId,
-          userId: email, // 이메일을 userId로 사용
+          email: trimmedEmail,
           latitude,
           longitude,
         },
-        email, // 이메일 필드
-      });
+        targetEmail: trimmedInputEmail
+      };
+  
       console.log('Sending request:', requestBody);
   
-      const response = await fetch('https://f98b-58-151-101-222.ngrok-free.app/location/save', {
+      const response = await fetch('https://5463-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: requestBody,
+        body: JSON.stringify(requestBody),
       });
   
       if (!response.ok) {
@@ -73,15 +70,15 @@ export default function MainScreen() {
       }
   
       const data = await response.json();
-      console.log('Response data:', data); // 서버 응답 확인 로그
+      console.log('Response data:', data);
   
       if (data.distance !== undefined) {
-        setDistance(data.distance); // 서버에서 계산된 거리 받기
+        setDistance(data.distance);
       } else {
         console.error('Distance data is missing in response');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error:', error.message);
     }
   };
 
@@ -91,9 +88,17 @@ export default function MainScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="이메일 입력"
+        placeholder="내 이메일 입력"
         value={email}
         onChangeText={setEmail}
+        keyboardType="default"
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="다른 사용자 이메일 입력"
+        value={inputEmail}
+        onChangeText={setInputEmail}
         keyboardType="default"
       />
 

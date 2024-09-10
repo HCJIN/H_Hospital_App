@@ -7,28 +7,16 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Location {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String deviceId;
-    private String email; // userId를 email로 변경
-    private Double latitude;
-    private Double longitude;
+    private String email;
+    private double latitude;
+    private double longitude;
 
-    // 기본 생성자
-    public Location() {}
-
-    // 매개변수를 받는 생성자
-    public Location(String deviceId, String email, Double latitude, Double longitude) {
-        this.deviceId = deviceId;
-        this.email = email;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    // Getter 및 Setter
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -46,26 +34,26 @@ public class Location {
     }
 
     public String getEmail() {
-        return email; // userId를 email로 변경
+        return email;
     }
 
     public void setEmail(String email) {
-        this.email = email; // userId를 email로 변경
+        this.email = email;
     }
 
-    public Double getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public Double getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }
