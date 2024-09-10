@@ -46,16 +46,16 @@ export default function MainScreen() {
       if (!deviceId || !userId || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
-
+  
       const requestBody = JSON.stringify({
         deviceId,
         userId,
         latitude,
         longitude,
       });
-
-      console.log('Sending request:', requestBody);
-
+  
+      console.log('Sending request:', requestBody); // 디버깅 로그 추가
+  
       const response = await fetch('https://f98b-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
@@ -63,16 +63,16 @@ export default function MainScreen() {
         },
         body: requestBody,
       });
-
+  
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`HTTP error! status: ${response.status}, ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
       }
-
+  
       const data = await response.json();
-      console.log('Response data:', data); // 확인 로그 추가
-
+      console.log('Response data:', data); // 서버 응답 확인 로그
+  
       if (data.distance !== undefined) {
         setDistance(data.distance); // 서버에서 계산된 거리 받기
       } else {

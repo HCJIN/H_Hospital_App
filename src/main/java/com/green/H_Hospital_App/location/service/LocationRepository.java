@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long> {
-    // userId가 String 타입일 경우
-    Location findTopByUserIdOrderByIdDesc(String userId);
+    // userId를 email로 변경
+    Location findTopByEmailOrderByIdDesc(String email);
 }

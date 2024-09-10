@@ -21,11 +21,11 @@ public class LocationServiceImpl {
 
     // 위치 업데이트
     public void updateLocation(Location location) {
-        if (location == null || location.getUserId() == null) {
-            throw new IllegalArgumentException("Location entity or User ID must not be null");
+        if (location == null || location.getEmail() == null) {
+            throw new IllegalArgumentException("Location entity or Email must not be null");
         }
 
-        Location existingLocation = locationRepository.findTopByUserIdOrderByIdDesc(location.getUserId());
+        Location existingLocation = locationRepository.findTopByEmailOrderByIdDesc(location.getEmail());
         if (existingLocation != null) {
             existingLocation.setLatitude(location.getLatitude());
             existingLocation.setLongitude(location.getLongitude());
@@ -37,13 +37,13 @@ public class LocationServiceImpl {
     }
 
     // 거리 계산
-    public double calculateDistance(String patientUserId, String nurseUserId) {
-        if (patientUserId == null || nurseUserId == null) {
-            throw new IllegalArgumentException("User IDs must not be null");
+    public double calculateDistance(String patientEmail, String nurseEmail) {
+        if (patientEmail == null || nurseEmail == null) {
+            throw new IllegalArgumentException("Email addresses must not be null");
         }
 
-        Location patientLocation = locationRepository.findTopByUserIdOrderByIdDesc(patientUserId);
-        Location nurseLocation = locationRepository.findTopByUserIdOrderByIdDesc(nurseUserId);
+        Location patientLocation = locationRepository.findTopByEmailOrderByIdDesc(patientEmail);
+        Location nurseLocation = locationRepository.findTopByEmailOrderByIdDesc(nurseEmail);
 
         if (patientLocation != null && nurseLocation != null) {
             return Haversine.calculateDistance(
@@ -53,7 +53,7 @@ public class LocationServiceImpl {
                     nurseLocation.getLongitude()
             );
         } else {
-            throw new IllegalArgumentException("Locations for the given user IDs not found.");
+            throw new IllegalArgumentException("Locations for the given email addresses not found.");
         }
     }
 }

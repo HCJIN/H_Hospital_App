@@ -12,8 +12,8 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String deviceId; // 디바이스 ID를 문자열로 저장
-    private String userId; // 사용자 ID를 문자열로 저장
+    private String deviceId;
+    private String email; // userId를 email로 변경
     private Double latitude;
     private Double longitude;
 
@@ -21,9 +21,9 @@ public class Location {
     public Location() {}
 
     // 매개변수를 받는 생성자
-    public Location(String deviceId, String userId, Double latitude, Double longitude) {
+    public Location(String deviceId, String email, Double latitude, Double longitude) {
         this.deviceId = deviceId;
-        this.userId = userId;
+        this.email = email;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -45,12 +45,12 @@ public class Location {
         this.deviceId = deviceId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getEmail() {
+        return email; // userId를 email로 변경
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setEmail(String email) {
+        this.email = email; // userId를 email로 변경
     }
 
     public Double getLatitude() {

@@ -21,14 +21,17 @@ public class LocationController {
     public ResponseEntity<Map<String, Object>> saveLocation(@RequestBody LocationRequest locationRequest) {
         try {
             Location location = locationRequest.getLocation();
+            if (location == null) {
+                throw new IllegalArgumentException("Location entity must not be null");
+            }
+
             locationService.saveLocation(location);
 
-            String userId = locationRequest.getUserId();
+            String email = locationRequest.getEmail(); // userId를 email로 변경
             double distance = -1; // 기본값
 
-            // 거리 계산은 선택적 작업으로 처리
-            if (locationRequest.getUserId() != null && location.getUserId() != null) {
-                distance = locationService.calculateDistance(location.getUserId(), userId);
+            if (email != null && location.getEmail() != null) {
+                distance = locationService.calculateDistance(location.getEmail(), email);
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -54,7 +57,7 @@ public class LocationController {
 
     public static class LocationRequest {
         private Location location;
-        private String userId;
+        private String email; // userId를 email로 변경
 
         // getters and setters
         public Location getLocation() {
@@ -65,12 +68,12 @@ public class LocationController {
             this.location = location;
         }
 
-        public String getUserId() {
-            return userId;
+        public String getEmail() {
+            return email; // userId를 email로 변경
         }
 
-        public void setUserId(String userId) {
-            this.userId = userId;
+        public void setEmail(String email) {
+            this.email = email; // userId를 email로 변경
         }
     }
 }
