@@ -2,6 +2,7 @@ package com.green.H_Hospital_App.location.controller;
 
 import com.green.H_Hospital_App.location.model.Location;
 import com.green.H_Hospital_App.location.service.LocationServiceImpl;
+import com.green.H_Hospital_App.location.util.Haversine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,31 +17,36 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService;
 
-    // 위치 정보 저장
+    @GetMapping("/test")
+    public void aaa(){
+        System.out.println("거리: " + Haversine.calculateDistance());
+    }
+
+
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> saveLocation(@RequestBody LocationRequest locationRequest) {
         try {
             Location location = locationRequest.getLocation();
             if (location == null) {
-                throw new IllegalArgumentException("Location entity must not be null");
+                return ResponseEntity.badRequest().body(Map.of("error", "Location entity must not be null or empty"));
+            }
+
+            String email = location.getEmail();
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email must not be null or empty"));
             }
 
             locationService.saveLocation(location);
 
-            String email = locationRequest.getEmail(); // userId를 email로 변경
-            double distance = -1; // 기본값
-
-            if (email != null && location.getEmail() != null) {
-                distance = locationService.calculateDistance(location.getEmail(), email);
-            }
+            double distance = locationService.calculateDistance(email, email);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "위치 정보가 저장되었습니다.");
             response.put("distance", distance);
 
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

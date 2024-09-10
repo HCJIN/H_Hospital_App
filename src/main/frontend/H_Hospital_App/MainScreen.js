@@ -50,7 +50,8 @@ export default function MainScreen() {
       const requestBody = JSON.stringify({
         location: {
           deviceId,
-          userId: email, // 이메일을 userId로 사용
+          // userId: email, // 이메일을 userId로 사용
+          email,
           latitude,
           longitude,
         },
@@ -58,7 +59,7 @@ export default function MainScreen() {
       });
       console.log('Sending request:', requestBody);
   
-      const response = await fetch('https://f98b-58-151-101-222.ngrok-free.app/location/save', {
+      const response = await fetch('https://5463-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
