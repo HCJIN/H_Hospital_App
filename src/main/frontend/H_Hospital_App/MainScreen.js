@@ -24,6 +24,7 @@ export default function MainScreen() {
     }
 
     let location = await Location.getCurrentPositionAsync({});
+    console.log(location);
     setCurrentLocation({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude
@@ -62,6 +63,8 @@ export default function MainScreen() {
         },
         body: JSON.stringify(requestBody),
       });
+
+
   
       if (!response.ok) {
         const errorText = await response.text();

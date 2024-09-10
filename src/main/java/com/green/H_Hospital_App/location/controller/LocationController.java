@@ -89,7 +89,8 @@ public class LocationController {
         }
     }
 
-    public class LocationRequest {
+    // -- 여기를 static으로 수정
+    public static class LocationRequest {
         private Location location;
         private String targetEmail;
 
@@ -111,6 +112,7 @@ public class LocationController {
         }
     }
 
+    // 이 클래스는 static으로 선언되어 있음
     public static class LocationUpdateRequest {
         private Location location;
         private double inputLatitude;
