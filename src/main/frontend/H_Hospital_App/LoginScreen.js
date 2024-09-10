@@ -2,11 +2,13 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
+import * as Device from 'expo-device'; // 추가된 부분
 
 export default function LoginScreen({ navigation }) {
   const [member, setMember] = useState({ email: '', memPw: '' });
   const [memberData, setMemberData] = useState({});
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [deviceId, setDeviceId] = useState(''); // 추가된 부분
 
   const handleChange = (field, value) => {
     setMember(prevState => ({ ...prevState, [field]: value }));
@@ -22,18 +24,39 @@ export default function LoginScreen({ navigation }) {
     if (currentLocation && memberData.userId) {
       updateLocation(memberData.userId, currentLocation.latitude, currentLocation.longitude);
     }
-  }, [currentLocation]);
+  }, [currentLocation, memberData.userId]);
+
+  useEffect(() => {
+    // 디바이스 ID 가져오기
+    if (Device.isDevice) {
+      setDeviceId(Device.deviceId || 'default-device-id'); // 디바이스 ID가 없을 경우 대체 값 설정
+    } else {
+      setDeviceId('default-device-id'); // 디바이스가 아닌 경우 대체 값 설정
+    }
+  }, []);
 
   const selectMemberInfo = async () => {
+    if (!member.email || !member.memPw) {
+      alert('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
     try {
-      const response = await axios.get("https://ab7a-58-151-101-222.ngrok-free.app/member/getMember", {
-        params: { email: member.email, memPw: member.memPw }
+      const response = await axios.get("https://f98b-58-151-101-222.ngrok-free.app/member/getMember", {
+        params: { 
+          email: member.email, 
+          memPw: member.memPw 
+        }
       });
 
       if (response.data && response.data.memName) {
         setMemberData(response.data);
-        await getLocation(); // 위치 가져오기
-        navigation.navigate('Main'); // 로그인 성공 시 이동
+        await getLocation();
+        // `updateLocation`을 호출할 때 적절한 인자를 전달합니다.
+        if (currentLocation) {
+          await updateLocation(response.data.userId, currentLocation.latitude, currentLocation.longitude);
+        }
+        navigation.navigate('Main');
       } else {
         alert('로그인에 실패하였습니다.');
       }
@@ -51,6 +74,7 @@ export default function LoginScreen({ navigation }) {
     }
 
     let location = await Location.getCurrentPositionAsync({});
+    console.log('Current location:', location.coords); // 위치 확인
     setCurrentLocation({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude
@@ -59,9 +83,13 @@ export default function LoginScreen({ navigation }) {
 
   const updateLocation = async (userId, latitude, longitude) => {
     try {
-      const response = await axios.post("https://ab7a-58-151-101-222.ngrok-free.app/location/updateLocation", {
-        deviceId: 'your-device-id', // 실제 디바이스 ID로 교체 필요
-        userId: userId,
+      console.log('Updating location with:', {
+        userId,
+        latitude,
+        longitude
+      }); // 디버깅 로그
+      const response = await axios.post("https://f98b-58-151-101-222.ngrok-free.app/member/updateLocation", {
+        email: memberData.email, // 여기에 적절한 email 값을 전달
         latitude: latitude,
         longitude: longitude
       });
@@ -75,8 +103,6 @@ export default function LoginScreen({ navigation }) {
       console.error('Error updating location:', error);
     }
   };
-
-  
 
   return (
     <View style={styles.container}>

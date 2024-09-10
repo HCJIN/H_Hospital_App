@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 해당 파일에 모든 쿼리문을 작성 -->
 <mapper namespace="memberMapper">
     <resultMap id="member" type="com.green.H_Hospital_App.member.vo.MemberVO">
-        <id column="MEM_NUM"                    property="memNum" />
-        <result column="EMAIL"                  property="email" />
-        <result column="MEM_PW"                 property="memPw"/>
-        <result column="MEM_NAME"               property="memName"/>
-        <result column="MEM_TEL"                property="memTel"/>
-        <result column="MEM_ROLE"               property="memRole"/>
+        <id column="MEM_NUM" property="memNum" />
+        <result column="EMAIL" property="email" />
+        <result column="MEM_PW" property="memPw"/>
+        <result column="MEM_NAME" property="memName"/>
+        <result column="MEM_TEL" property="memTel"/>
+        <result column="MEM_ROLE" property="memRole"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
     </resultMap>
 
     <select id="getMember" resultMap="member">
         SELECT MEM_NUM,
-            EMAIL,
-            MEM_PW,
-            MEM_NAME,
-            MEM_TEL,
-            MEM_ROLE
+        EMAIL,
+        MEM_PW,
+        MEM_NAME,
+        MEM_TEL,
+        MEM_ROLE,
+        latitude,
+        longitude
         FROM HOSPITAL_MEMBER
         WHERE EMAIL = #{email}
         AND MEM_PW = #{memPw};
@@ -26,47 +29,23 @@
 
     <insert id="insertMember">
         INSERT INTO HOSPITAL_MEMBER(
-            EMAIL
-            , MEM_PW
-            , MEM_NAME
-            , MEM_TEL
+        EMAIL,
+        MEM_PW,
+        MEM_NAME,
+        MEM_TEL
         ) VALUES(
-            #{email}
-            , #{memPw}
-            , #{memName}
-            , #{memTel}
+        #{email},
+        #{memPw},
+        #{memName},
+        #{memTel}
         );
     </insert>
 
+    <!-- 위치 업데이트 쿼리 추가 -->
+    <update id="updateLocation">
+        UPDATE HOSPITAL_MEMBER
+        SET latitude = #{latitude},
+        longitude = #{longitude}
+        WHERE EMAIL = #{email};
+    </update>
 </mapper>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

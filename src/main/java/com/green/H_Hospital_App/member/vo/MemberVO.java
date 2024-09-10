@@ -10,4 +10,6 @@ public class MemberVO {
     private String memName;
     private String memTel;
     private String memRole;
+    private Double latitude;
+    private Double longitude;
 }

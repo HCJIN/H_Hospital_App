@@ -18,33 +18,59 @@ public class LocationController {
 
     // 위치 정보 저장
     @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> saveLocation(@RequestBody Location location) {
-        locationService.saveLocation(location);
+    public ResponseEntity<Map<String, Object>> saveLocation(@RequestBody LocationRequest locationRequest) {
+        try {
+            Location location = locationRequest.getLocation();
+            locationService.saveLocation(location);
 
-        // 거리 계산을 위해서 예시로 간호사와 환자의 ID를 하드코딩
-        // 실제로는 이 부분을 조정하여 동적으로 값을 가져오거나 클라이언트에서 전달받을 수 있도록 해야 함
-        String nurseUserId = "nurseUserId"; // 예시 ID, 실제로는 적절한 값을 사용해야 함
-        double distance = locationService.calculateDistance(location.getUserId(), nurseUserId);
+            String userId = locationRequest.getUserId();
+            double distance = -1; // 기본값
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "위치 정보가 저장되었습니다.");
-        response.put("distance", distance);
+            // 거리 계산은 선택적 작업으로 처리
+            if (locationRequest.getUserId() != null && location.getUserId() != null) {
+                distance = locationService.calculateDistance(location.getUserId(), userId);
+            }
 
-        return ResponseEntity.ok(response);
-    }
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "위치 정보가 저장되었습니다.");
+            response.put("distance", distance);
 
-    // 환자와 간호사 간의 거리 계산
-    @GetMapping("/distance")
-    public String calculateDistance(
-            @RequestParam String patientUserId,
-            @RequestParam String nurseUserId) {
-        double distance = locationService.calculateDistance(patientUserId, nurseUserId);
-        return "환자와 간호사 간의 거리: " + distance + " km";
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+        }
     }
 
     // 위치 업데이트
     @PostMapping("/updateLocation")
-    public void updateLocation(@RequestBody Location location) {
-        locationService.saveLocation(location);
+    public ResponseEntity<Map<String, String>> updateLocation(@RequestBody Location location) {
+        try {
+            locationService.updateLocation(location);
+            return ResponseEntity.ok(Map.of("message", "위치 정보가 업데이트되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    public static class LocationRequest {
+        private Location location;
+        private String userId;
+
+        // getters and setters
+        public Location getLocation() {
+            return location;
+        }
+
+        public void setLocation(Location location) {
+            this.location = location;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
     }
 }

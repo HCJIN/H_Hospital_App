@@ -56,7 +56,7 @@ export default function MainScreen() {
 
       console.log('Sending request:', requestBody);
 
-      const response = await fetch('http://localhost:8080/location/save', {
+      const response = await fetch('https://f98b-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

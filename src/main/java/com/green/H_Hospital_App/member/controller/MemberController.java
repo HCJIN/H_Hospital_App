@@ -2,8 +2,6 @@ package com.green.H_Hospital_App.member.controller;
 
 import com.green.H_Hospital_App.member.service.MemberService;
 import com.green.H_Hospital_App.member.vo.MemberVO;
-import com.green.H_Hospital_App.location.model.Location;
-import com.green.H_Hospital_App.location.service.LocationServiceImpl; // 위치 서비스 추가
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +11,6 @@ public class MemberController {
 
     @Resource(name = "memberService")
     private MemberService memberService;
-
-    @Resource(name = "locationServiceImpl")
-    private LocationServiceImpl locationService;
 
     @GetMapping("/getMember")
     public MemberVO getMember(
@@ -33,7 +28,7 @@ public class MemberController {
 
     // 위치 업데이트 엔드포인트 추가
     @PostMapping("/updateLocation")
-    public void updateLocation(@RequestBody Location location){
-        locationService.updateLocation(location);
+    public void updateLocation(@RequestBody MemberVO memberVO) {
+        memberService.updateLocation(memberVO.getEmail(), memberVO.getLatitude(), memberVO.getLongitude());
     }
 }
