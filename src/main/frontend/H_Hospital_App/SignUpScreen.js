@@ -29,10 +29,10 @@ export default function SignUpScreen({ navigation }) {
   console.log(regMember)
 
   // 회원가입시 자바로 데이터를 보내는 함수
-  const insertMemberData = async () => {
+  function insertMemberData(){
     // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
   
-    axios.post('https://e7db-58-151-101-222.ngrok-free.app/member/insertMember', regMember)
+    axios.post('https://f98b-58-151-101-222.ngrok-free.app/member/insertMember', regMember)
     .then((res) => {
       alert('회원가입이 완료되었습니다.');
       navigation.navigate('Login');
