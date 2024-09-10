@@ -7,7 +7,7 @@ import 'react-native-get-random-values';
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [distance, setDistance] = useState(null);
-  const [userId, setUserId] = useState(''); // 사용자 ID 상태 추가
+  const [email, setEmail] = useState(''); // 이메일 상태 추가
   const [deviceId, setDeviceId] = useState(''); // 디바이스 ID 상태 추가
 
   useEffect(() => {
@@ -38,23 +38,25 @@ export default function MainScreen() {
     });
 
     // 위치 정보를 서버에 저장
-    sendLocationToServer(deviceId, userId, location.coords.latitude, location.coords.longitude);
+    sendLocationToServer(deviceId, email, location.coords.latitude, location.coords.longitude);
   };
 
-  const sendLocationToServer = async (deviceId, userId, latitude, longitude) => {
+  const sendLocationToServer = async (deviceId, email, latitude, longitude) => {
     try {
-      if (!deviceId || !userId || !latitude || !longitude) {
+      if (!deviceId || !email || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
   
       const requestBody = JSON.stringify({
-        deviceId,
-        userId,
-        latitude,
-        longitude,
+        location: {
+          deviceId,
+          userId: email, // 이메일을 userId로 사용
+          latitude,
+          longitude,
+        },
+        email, // 이메일 필드
       });
-  
-      console.log('Sending request:', requestBody); // 디버깅 로그 추가
+      console.log('Sending request:', requestBody);
   
       const response = await fetch('https://f98b-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
@@ -89,9 +91,9 @@ export default function MainScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="사용자 ID 입력"
-        value={userId}
-        onChangeText={setUserId}
+        placeholder="이메일 입력"
+        value={email}
+        onChangeText={setEmail}
         keyboardType="default"
       />
 
