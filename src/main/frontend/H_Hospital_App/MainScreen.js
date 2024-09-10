@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import { v4 as uuidv4 } from 'uuid'; // UUID 생성기
 import 'react-native-get-random-values';
+import { WebView } from 'react-native-webview';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -37,12 +38,12 @@ export default function MainScreen() {
       // 빈 문자열을 null로 변환
       const trimmedEmail = email.trim() || null;
       const trimmedInputEmail = inputEmail.trim() || null;
-  
+
       // 유효성 검사
       if (!deviceId || !trimmedEmail || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
-  
+
       const requestBody = {
         location: {
           deviceId,
@@ -52,9 +53,9 @@ export default function MainScreen() {
         },
         targetEmail: trimmedInputEmail
       };
-  
+
       console.log('Sending request:', requestBody);
-  
+
       const response = await fetch('https://5463-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
@@ -62,16 +63,16 @@ export default function MainScreen() {
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`HTTP error! status: ${response.status}, ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
       }
-  
+
       const data = await response.json();
       console.log('Response data:', data);
-  
+
       if (data.distance !== undefined) {
         setDistance(data.distance);
       } else {
@@ -81,6 +82,35 @@ export default function MainScreen() {
       console.error('Error:', error.message);
     }
   };
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>카카오 맵</title>
+      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=fcaac90717961c96e110a08056effef4"></script>
+      <style>
+        body, html { height: 100%; margin: 0; }
+        #map { width: 100%; height: 100%; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          var mapContainer = document.getElementById('map'),
+              mapOption = {
+                center: new kakao.maps.LatLng(37.5665, 126.978),
+                level: 3
+              };
+          
+          var map = new kakao.maps.Map(mapContainer, mapOption);
+        });
+      </script>
+    </body>
+    </html>
+  `;
 
   return (
     <View style={styles.container}>
@@ -115,6 +145,15 @@ export default function MainScreen() {
           다른 기기와의 거리: {distance} km
         </Text>
       )}
+
+      {/* 카카오맵 웹 뷰 */}
+      <View style={styles.mapContainer}>
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: htmlContent }}
+          style={styles.webview}
+        />
+      </View>
     </View>
   );
 }
@@ -137,5 +176,13 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  mapContainer: {
+    width: '100%',
+    height: '50%', // 웹 뷰 높이 조정
+    marginTop: 20,
+  },
+  webview: {
+    flex: 1,
   },
 });
