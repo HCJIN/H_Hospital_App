@@ -21,10 +21,10 @@ export default function LoginScreen({ navigation }) {
   }, [memberData]);
 
   useEffect(() => {
-    if (currentLocation && memberData.userId) {
-      updateLocation(memberData.userId, currentLocation.latitude, currentLocation.longitude);
+    if (currentLocation && memberData.email) {
+      updateLocation(memberData.email, currentLocation.latitude, currentLocation.longitude);
     }
-  }, [currentLocation, memberData.userId]);
+  }, [currentLocation, memberData.email]);
 
   useEffect(() => {
     // 디바이스 ID 가져오기
@@ -54,7 +54,7 @@ export default function LoginScreen({ navigation }) {
         await getLocation();
         // `updateLocation`을 호출할 때 적절한 인자를 전달합니다.
         if (currentLocation) {
-          await updateLocation(response.data.userId, currentLocation.latitude, currentLocation.longitude);
+          await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
         }
         navigation.navigate('Main');
       } else {
@@ -81,15 +81,15 @@ export default function LoginScreen({ navigation }) {
     });
   };
 
-  const updateLocation = async (userId, latitude, longitude) => {
+  const updateLocation = async (email, latitude, longitude) => {
     try {
       console.log('Updating location with:', {
-        userId,
+        email,
         latitude,
         longitude
       }); // 디버깅 로그
       const response = await axios.post("https://f98b-58-151-101-222.ngrok-free.app/member/updateLocation", {
-        email: memberData.email, // 여기에 적절한 email 값을 전달
+        email: email, // 여기에 적절한 email 값을 전달
         latitude: latitude,
         longitude: longitude
       });
