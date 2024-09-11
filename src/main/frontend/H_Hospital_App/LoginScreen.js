@@ -3,28 +3,25 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as Device from 'expo-device'; // 추가된 부분
-
 export default function LoginScreen({ navigation }) {
   const [member, setMember] = useState({ email: '', memPw: '' });
   const [memberData, setMemberData] = useState({});
   const [currentLocation, setCurrentLocation] = useState(null);
   const [deviceId, setDeviceId] = useState(''); // 추가된 부분
-
   const handleChange = (field, value) => {
     setMember(prevState => ({ ...prevState, [field]: value }));
   };
-
   useEffect(() => {
     if (memberData && memberData.memName) {
       alert(memberData.memName + ' 환영합니다.');
     }
   }, [memberData]);
 
-  // useEffect(() => {
-  //   if (currentLocation && memberData.email) {
-  //     updateLocation(memberData.email, currentLocation.latitude, currentLocation.longitude);
-  //   }
-  // }, [currentLocation, memberData.email]);
+  useEffect(() => {
+    if (currentLocation && memberData.email) {
+      updateLocation(memberData.email, currentLocation.latitude, currentLocation.longitude);
+    }
+  }, [currentLocation, memberData.email]);
 
   useEffect(() => {
     // 디바이스 ID 가져오기
@@ -34,7 +31,7 @@ export default function LoginScreen({ navigation }) {
       setDeviceId('default-device-id'); // 디바이스가 아닌 경우 대체 값 설정
     }
   }, []);
-
+  
   const selectMemberInfo = async () => {
     if (!member.email || !member.memPw) {
       alert('이메일과 비밀번호를 입력해주세요.');
@@ -55,17 +52,17 @@ export default function LoginScreen({ navigation }) {
         await getLocation();
         // `updateLocation`을 호출할 때 적절한 인자를 전달합니다.
         if (currentLocation) {
-          // await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
+          await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
         }
         navigation.navigate('Main');
       } else {
         alert('로그인에 실패하였습니다.');
+        }
+      } catch (error) {
+        alert('로그인에 실패하였습니다.');
+        console.log('Error:', error.response ? error.response.data : error.message);
       }
-    } catch (error) {
-      alert('로그인에 실패하였습니다.');
-      console.log('Error:', error.response ? error.response.data : error.message);
-    }
-  };
+    };
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -80,6 +77,29 @@ export default function LoginScreen({ navigation }) {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude
     });
+  };
+
+  const updateLocation = async (email, latitude, longitude) => {
+    try {
+      console.log('Updating location with:', {
+        email,
+        latitude,
+        longitude
+      }); // 디버깅 로그
+      const response = await axios.post("https://9cd5-58-151-101-222.ngrok-free.app/member/updateLocation", {
+        email: email, // 여기에 적절한 email 값을 전달
+        latitude: latitude,
+        longitude: longitude
+      });
+
+      if (response.status === 200) {
+        console.log('Location updated successfully');
+      } else {
+        alert('위치 업데이트 실패');
+      }
+    } catch (error) {
+      console.error('Error updating location:', error);
+    }
   };
 
   return (

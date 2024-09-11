@@ -9,7 +9,8 @@
         <result column="MEM_NAME" property="memName"/>
         <result column="MEM_TEL" property="memTel"/>
         <result column="MEM_ROLE" property="memRole"/>
-        <result column="NURSE_TEL" property="nurseTel" />
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
     </resultMap>
 
     <select id="getMember" resultMap="member">
@@ -18,7 +19,9 @@
         MEM_PW,
         MEM_NAME,
         MEM_TEL,
-        MEM_ROLE
+        MEM_ROLE,
+        latitude,
+        longitude
         FROM HOSPITAL_MEMBER
         WHERE EMAIL = #{email}
         AND MEM_PW = #{memPw};
@@ -37,4 +40,12 @@
         #{memTel}
         );
     </insert>
+
+    <!-- 위치 업데이트 쿼리 추가 -->
+    <update id="updateLocation">
+        UPDATE HOSPITAL_MEMBER
+        SET latitude = #{latitude},
+        longitude = #{longitude}
+        WHERE EMAIL = #{email};
+    </update>
 </mapper>

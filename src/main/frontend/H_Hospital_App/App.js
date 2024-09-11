@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './LoginScreen';
 import SignUpScreen from './SignUpScreen';
 import MainScreen from './MainScreen';
+import AdminScreen from './AdminScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +45,11 @@ export default function App() {
             name='Main'
             component={MainScreen}
             options={{title: '메인화면'}}
+          />
+          <Stack.Screen 
+            name="AdminScreen"
+            component={AdminScreen}
+            options={{ title: '관리자 페이지' }}
           />
         </Stack.Navigator>
         <StatusBar hidden={!statusBarVisible} />
