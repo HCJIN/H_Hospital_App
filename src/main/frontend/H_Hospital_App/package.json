@@ -33,7 +33,11 @@
     "react-native-screens": "3.31.1",
     "react-native-uuid": "^2.0.2",
     "react-native-web": "~0.19.10",
+<<<<<<< HEAD
     "react-native-webview": "^13.8.6",
+=======
+    "react-native-webview": "13.8.6",
+>>>>>>> hcj
     "use-interval": "^1.4.0",
     "uuid": "^10.0.0"
   },
