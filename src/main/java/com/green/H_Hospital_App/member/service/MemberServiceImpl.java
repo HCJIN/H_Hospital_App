@@ -27,14 +27,4 @@ public class MemberServiceImpl implements MemberService{
         sqlSession.insert("memberMapper.insertMember", memberVO);
     }
 
-    @Override
-    public void updateLocation(String email, double latitude, double longitude) {
-        System.out.println("Updating location with: email=" + email + ", latitude=" + latitude + ", longitude=" + longitude);
-        Map<String, Object> params = new HashMap<>();
-        params.put("email", email);
-        params.put("latitude", latitude);
-        params.put("longitude", longitude);
-        int rowsAffected = sqlSession.update("memberMapper.updateLocation", params);
-        System.out.println("Rows affected: " + rowsAffected);
-    }
 }
