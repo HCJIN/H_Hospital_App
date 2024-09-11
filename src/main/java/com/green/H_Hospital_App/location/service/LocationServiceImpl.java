@@ -15,6 +15,7 @@ public class LocationServiceImpl {
     @Autowired
     private LocationRepository locationRepository;
 
+    // 위치 저장 메서드
     public void saveLocation(Location location) {
         if (location == null || location.getEmail() == null) {
             throw new IllegalArgumentException("Location entity and email must not be null");
@@ -23,6 +24,7 @@ public class LocationServiceImpl {
         logger.info("Location saved for email: {}", location.getEmail());
     }
 
+    // 위치 업데이트 메서드
     public void updateLocation(Location location) {
         if (location == null || location.getEmail() == null) {
             throw new IllegalArgumentException("Location entity or Email must not be null");
@@ -43,6 +45,7 @@ public class LocationServiceImpl {
                 );
     }
 
+    // 거리 계산 메서드
     public double calculateDistanceFromInputLocation(String email, double inputLatitude, double inputLongitude) {
         logger.info("Calculating distance for email: {} with input location: {}, {}", email, inputLatitude, inputLongitude);
 
@@ -65,5 +68,14 @@ public class LocationServiceImpl {
 
         logger.info("Calculated distance: {} km", distance);
         return distance;
+    }
+
+    // 특정 이메일을 제외한 최근 위치 조회 메서드
+    public Location getRecentLocationExceptEmail(String excludedEmail) {
+        return locationRepository.findTopByEmailNotOrderByIdDesc(excludedEmail)
+                .orElseThrow(() -> {
+                    logger.error("No location found except for email: {}", excludedEmail);
+                    return new IllegalArgumentException("No location found for any email except the given email");
+                });
     }
 }
