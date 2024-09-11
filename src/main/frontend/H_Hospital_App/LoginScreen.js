@@ -54,7 +54,12 @@ export default function LoginScreen({ navigation }) {
         if (currentLocation) {
           await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
         }
-        navigation.navigate('Main');
+        if(response.data.memRole == 'ADMIN'){
+          navigation.navigate('AdminScreen')
+        }
+        else{
+          navigation.navigate('Main');
+        }
       } else {
         alert('로그인에 실패하였습니다.');
         }

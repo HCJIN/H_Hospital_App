@@ -28,7 +28,7 @@ export default function MainScreen() {
     if (isTracking) {
       const intervalId = setInterval(() => {
         getLocation();
-      }, 30000); // 30초마다 위치 업데이트
+      }, 15000); // 30초마다 위치 업데이트
       return () => clearInterval(intervalId);
     }
   }, [isTracking]);
