@@ -2,6 +2,8 @@ package com.hcjin.H_Hospital_App
 
 import android.os.Build
 import android.os.Bundle
+import android.webkit.WebView
+import android.webkit.WebViewClient
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -17,6 +19,11 @@ class MainActivity : ReactActivity() {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null)
+    
+    // WebView 관련 설정 추가 (선택 사항)
+    val webView = WebView(this)
+    webView.settings.javaScriptEnabled = true
+    webView.webViewClient = WebViewClient()
   }
 
   /**
