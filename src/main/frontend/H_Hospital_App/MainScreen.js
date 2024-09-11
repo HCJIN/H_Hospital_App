@@ -261,7 +261,7 @@ export default function MainScreen() {
         onPress={() => setIsTracking(!isTracking)}
       />
 
-      {distance && <Text>거리: {distance.toFixed(2)} km</Text>}
+      {distance !== null && <Text>거리: {distance.toFixed(2)} km</Text>}
 
       <WebView
         ref={webViewRef}

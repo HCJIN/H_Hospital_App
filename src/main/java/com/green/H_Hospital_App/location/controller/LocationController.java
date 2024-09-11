@@ -38,6 +38,15 @@ public class LocationController {
 
             locationService.saveLocation(location);
 
+            // Check if targetEmail is not null or empty
+            if (targetEmail == null || targetEmail.isEmpty()) {
+                throw new IllegalArgumentException("Target email must not be null or empty");
+            }
+
+            // Retrieve target location
+            Location targetLocation = locationService.getLocationByEmail(targetEmail);
+
+            // Calculate distance only if target location exists
             double distance = locationService.calculateDistanceFromInputLocation(targetEmail, location.getLatitude(), location.getLongitude());
 
             Map<String, Object> response = new HashMap<>();
@@ -53,6 +62,7 @@ public class LocationController {
             return ResponseEntity.internalServerError().body(Map.of("error", "서버 오류가 발생했습니다."));
         }
     }
+
 
     @PostMapping("/updateLocation")
     public ResponseEntity<Map<String, Object>> updateLocation(@RequestBody LocationUpdateRequest updateRequest) {
