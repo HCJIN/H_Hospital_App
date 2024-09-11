@@ -57,7 +57,7 @@ export default function MainScreen() {
 
       console.log('Sending request:', requestBody);
 
-      const response = await fetch('https://5463-58-151-101-222.ngrok-free.app/location/save', {
+      const response = await fetch('https://9cd5-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
