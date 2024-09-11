@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { v4 as uuidv4 } from 'uuid'; // UUID 생성기
 import 'react-native-get-random-values';
 import { WebView } from 'react-native-webview';
+import useInterval from 'use-interval';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -11,11 +12,14 @@ export default function MainScreen() {
   const [email, setEmail] = useState('');
   const [inputEmail, setInputEmail] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [isTracking, setIsTracking] = useState(false);
 
   useEffect(() => {
     const id = uuidv4();
     setDeviceId(id);
   }, []);
+
+  
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -84,6 +88,13 @@ export default function MainScreen() {
     }
   };
 
+  // useInterval을 사용해 주기적으로 getLocation 호출(실시간으로 위치 업데이트)
+  useInterval(() => {
+    if (isTracking) {  // 위치 추적이 활성화된 경우에만 getLocation을 실행
+      getLocation();
+    }
+  }, isTracking ? 5000 : null); // isTracking이 true일 때만 5초 간격으로 위치 업데이트
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -146,6 +157,12 @@ export default function MainScreen() {
           다른 기기와의 거리: {distance} km
         </Text>
       )}
+
+       {/* 위치 추적 시작/중지 버튼 */}
+      <Button
+        title={isTracking ? "위치 추적 중지" : "위치 추적 시작"}
+        onPress={() => setIsTracking(!isTracking)} // 버튼 클릭 시 추적 상태 변경
+      />
 
       {/* 카카오맵 웹 뷰 */}
       <View style={styles.mapContainer}>
