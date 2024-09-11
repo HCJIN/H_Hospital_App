@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
-import * as Random from 'expo-random';
+import * as Crypto from 'expo-crypto'; // expo-crypto 사용
 import { WebView } from 'react-native-webview';
 
 export default function MainScreen() {
@@ -14,32 +14,21 @@ export default function MainScreen() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
 
-  // UUID 생성 함수
-  const generateUUID = async () => {
-    const randomBytes = await Random.getRandomBytesAsync(16);
-    const uuid = [
-      randomBytes.slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join(''),
-      randomBytes.slice(4, 6).map(b => b.toString(16).padStart(2, '0')).join(''),
-      '4' + randomBytes.slice(6, 7).map(b => b.toString(16).padStart(2, '0')).substr(1), // UUID version 4
-      randomBytes.slice(7, 8).map(b => b.toString(16).padStart(2, '0')).join(''),
-      randomBytes.slice(8).map(b => b.toString(16).padStart(2, '0')).join(''),
-    ].join('-');
-    return uuid;
-  };
-
+  // deviceId 생성
   useEffect(() => {
-    const fetchUUID = async () => {
-      const id = await generateUUID();
+    const generateDeviceId = async () => {
+      const randomBytes = await Crypto.getRandomBytesAsync(16);
+      const id = Array.from(randomBytes, byte => ('0' + byte.toString(16)).slice(-2)).join('');
       setDeviceId(id);
     };
-    fetchUUID();
+    generateDeviceId();
   }, []);
 
   useEffect(() => {
     if (isTracking) {
       const intervalId = setInterval(() => {
         getLocation();
-      }, 30000); // 30초마다 호출
+      }, 30000); // 30초마다 위치 업데이트
       return () => clearInterval(intervalId);
     }
   }, [isTracking]);
@@ -269,12 +258,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   mapContainer: {
-    flex: 1,
-    width: '100%',
-    marginTop: 20,
-  },
-  webview: {
     width: '100%',
     height: 400,
+  },
+  webview: {
+    flex: 1,
   },
 });
