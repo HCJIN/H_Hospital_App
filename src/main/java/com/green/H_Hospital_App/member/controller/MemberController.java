@@ -26,9 +26,4 @@ public class MemberController {
         memberService.insertMember(memberVO);
     }
 
-    // 위치 업데이트 엔드포인트 추가
-    @PostMapping("/updateLocation")
-    public void updateLocation(@RequestBody MemberVO memberVO) {
-        memberService.updateLocation(memberVO.getEmail(), memberVO.getLatitude(), memberVO.getLongitude());
-    }
 }

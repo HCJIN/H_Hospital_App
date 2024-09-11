@@ -20,11 +20,11 @@ export default function LoginScreen({ navigation }) {
     }
   }, [memberData]);
 
-  useEffect(() => {
-    if (currentLocation && memberData.email) {
-      updateLocation(memberData.email, currentLocation.latitude, currentLocation.longitude);
-    }
-  }, [currentLocation, memberData.email]);
+  // useEffect(() => {
+  //   if (currentLocation && memberData.email) {
+  //     updateLocation(memberData.email, currentLocation.latitude, currentLocation.longitude);
+  //   }
+  // }, [currentLocation, memberData.email]);
 
   useEffect(() => {
     // 디바이스 ID 가져오기
@@ -55,7 +55,7 @@ export default function LoginScreen({ navigation }) {
         await getLocation();
         // `updateLocation`을 호출할 때 적절한 인자를 전달합니다.
         if (currentLocation) {
-          await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
+          // await updateLocation(response.data.email, currentLocation.latitude, currentLocation.longitude);
         }
         navigation.navigate('Main');
       } else {
@@ -80,29 +80,6 @@ export default function LoginScreen({ navigation }) {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude
     });
-  };
-
-  const updateLocation = async (email, latitude, longitude) => {
-    try {
-      console.log('Updating location with:', {
-        email,
-        latitude,
-        longitude
-      }); // 디버깅 로그
-      const response = await axios.post("https://9cd5-58-151-101-222.ngrok-free.app/member/updateLocation", {
-        email: email, // 여기에 적절한 email 값을 전달
-        latitude: latitude,
-        longitude: longitude
-      });
-
-      if (response.status === 200) {
-        console.log('Location updated successfully');
-      } else {
-        alert('위치 업데이트 실패');
-      }
-    } catch (error) {
-      console.error('Error updating location:', error);
-    }
   };
 
   return (
