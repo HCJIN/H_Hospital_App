@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
-import * as Crypto from 'expo-crypto'; // expo-crypto 사용
+import * as Crypto from 'expo-crypto';
 import { WebView } from 'react-native-webview';
 
 export default function MainScreen() {
@@ -24,21 +24,27 @@ export default function MainScreen() {
     generateDeviceId();
   }, []);
 
+  // 위치 추적 시작/중지
   useEffect(() => {
     if (isTracking) {
       const intervalId = setInterval(() => {
-        getLocation();
+        getLocation(); // 내 위치 가져오기
+        if (inputEmail) {
+          getTargetLocation(inputEmail); // 상대방 위치 가져오기
+        }
       }, 30000); // 30초마다 위치 업데이트
       return () => clearInterval(intervalId);
     }
-  }, [isTracking]);
+  }, [isTracking, inputEmail]);
 
+  // 지도 및 마커 업데이트
   useEffect(() => {
     if (currentLocation && mapLoaded) {
       updateMapLocation(currentLocation.latitude, currentLocation.longitude);
     }
   }, [currentLocation, mapLoaded]);
 
+  // 내 위치 가져오기
   const getLocation = async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -60,13 +66,32 @@ export default function MainScreen() {
     }
   };
 
+  // 상대방 위치 가져오기
+  const getTargetLocation = async (targetEmail) => {
+    try {
+      const response = await fetch(`https://9cd5-58-151-101-222.ngrok-free.app/location/get?email=${targetEmail}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP error! status: ${response.status}, ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
+      }
+      const data = await response.json();
+      if (data.latitude && data.longitude) {
+        updateTargetLocation(data.latitude, data.longitude);
+      } else {
+        console.error('Target location data is missing in response');
+      }
+    } catch (error) {
+      console.error('Error fetching target location:', error.message);
+    }
+  };
+
+  // 서버에 내 위치 전송
   const sendLocationToServer = async (deviceId, email, latitude, longitude) => {
     try {
-      // 빈 문자열을 null로 변환
       const trimmedEmail = email.trim() || null;
       const trimmedInputEmail = inputEmail.trim() || null;
 
-      // 유효성 검사
       if (!deviceId || !trimmedEmail || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
@@ -110,10 +135,14 @@ export default function MainScreen() {
     }
   };
 
+  // 내 위치 지도에 업데이트
   const updateMapLocation = (latitude, longitude) => {
     if (webViewRef.current && mapLoaded) {
       const script = `
         try {
+          if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
+            throw new Error('Kakao Maps library is not loaded.');
+          }
           var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
           map.setCenter(newLatLng);
           marker.setPosition(newLatLng);
@@ -128,6 +157,29 @@ export default function MainScreen() {
     }
   };
 
+  // 상대방 위치 지도에 업데이트
+  const updateTargetLocation = (latitude, longitude) => {
+    if (webViewRef.current && mapLoaded) {
+      const script = `
+        try {
+          if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
+            throw new Error('Kakao Maps library is not loaded.');
+          }
+          var targetLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
+          var targetMarker = new kakao.maps.Marker({
+            position: targetLatLng
+          });
+          targetMarker.setMap(map);
+          window.ReactNativeWebView.postMessage('Target location updated');
+        } catch (error) {
+          window.ReactNativeWebView.postMessage('Error updating target location: ' + error.message);
+        }
+      `;
+      webViewRef.current.injectJavaScript(script);
+    }
+  };
+
+  // 카카오맵 초기화
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -204,36 +256,20 @@ export default function MainScreen() {
 
       <Button title="내 위치 가져오기" onPress={getLocation} />
 
-      {currentLocation && (
-        <Text style={styles.text}>
-          내 위치: {currentLocation.latitude.toFixed(6)}, {currentLocation.longitude.toFixed(6)}
-        </Text>
-      )}
-
-      {distance !== null && (
-        <Text style={styles.text}>
-          다른 기기와의 거리: {distance} km
-        </Text>
-      )}
-
       <Button
-        title={isTracking ? "위치 추적 중지" : "위치 추적 시작"}
+        title={isTracking ? '위치 추적 중지' : '위치 추적 시작'}
         onPress={() => setIsTracking(!isTracking)}
       />
 
-      <View style={styles.mapContainer}>
-        <WebView
-          ref={webViewRef}
-          originWhitelist={['*']}
-          source={{ html: htmlContent }}
-          style={styles.webview}
-          onLoadEnd={() => console.log('WebView finished loading')}
-          onError={(e) => console.error('WebView error:', e.nativeEvent)}
-          onMessage={onWebViewMessage}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-        />
-      </View>
+      {distance && <Text>거리: {distance.toFixed(2)} km</Text>}
+
+      <WebView
+        ref={webViewRef}
+        originWhitelist={['*']}
+        source={{ html: htmlContent }}
+        onMessage={onWebViewMessage}
+        style={{ flex: 1 }}
+      />
     </View>
   );
 }
@@ -241,27 +277,17 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
   text: {
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 10,
   },
   input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    width: '100%',
     marginBottom: 10,
     paddingHorizontal: 10,
-  },
-  mapContainer: {
-    width: '100%',
-    height: 400,
-  },
-  webview: {
-    flex: 1,
   },
 });

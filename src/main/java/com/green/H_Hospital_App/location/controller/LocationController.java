@@ -33,17 +33,13 @@ public class LocationController {
                 throw new IllegalArgumentException("Location entity and email must not be null or empty");
             }
 
-            // 필드 가져오기
             Location location = locationRequest.getLocation();
             String targetEmail = locationRequest.getTargetEmail();
 
-            // 위치 정보 저장
             locationService.saveLocation(location);
 
-            // 거리 계산
             double distance = locationService.calculateDistanceFromInputLocation(targetEmail, location.getLatitude(), location.getLongitude());
 
-            // 응답 데이터 생성
             Map<String, Object> response = new HashMap<>();
             response.put("message", "위치 정보가 저장되었습니다.");
             response.put("distance", distance);
@@ -65,18 +61,14 @@ public class LocationController {
             double inputLatitude = updateRequest.getInputLatitude();
             double inputLongitude = updateRequest.getInputLongitude();
 
-            // 위치 정보 업데이트
             locationService.updateLocation(location);
 
-            // 거리 계산
             double distance = locationService.calculateDistanceFromInputLocation(location.getEmail(), inputLatitude, inputLongitude);
 
-            // 응답 데이터 생성
             Map<String, Object> response = new HashMap<>();
             response.put("message", "위치 정보가 업데이트되었습니다.");
             response.put("distance", distance);
 
-            // 로그 기록
             logger.info("Location updated for email: {}, Latitude: {}, Longitude: {}", location.getEmail(), location.getLatitude(), location.getLongitude());
 
             return ResponseEntity.ok(response);
@@ -89,12 +81,25 @@ public class LocationController {
         }
     }
 
-    // -- 여기를 static으로 수정
+    @GetMapping("/get")
+    public ResponseEntity<Map<String, Object>> getLocation() {
+        try {
+            // 예제용으로 임시 데이터 생성
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "위치 정보를 가져왔습니다.");
+            response.put("location", "예제 데이터");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Server error in getLocation: ", e);
+            return ResponseEntity.internalServerError().body(Map.of("error", "서버 오류가 발생했습니다."));
+        }
+    }
+
     public static class LocationRequest {
         private Location location;
         private String targetEmail;
 
-        // Getters and setters
         public Location getLocation() {
             return location;
         }
@@ -112,23 +117,19 @@ public class LocationController {
         }
     }
 
-    // 이 클래스는 static으로 선언되어 있음
     public static class LocationUpdateRequest {
         private Location location;
         private double inputLatitude;
         private double inputLongitude;
 
-        // 기본 생성자
         public LocationUpdateRequest() {}
 
-        // 매개변수를 받는 생성자
         public LocationUpdateRequest(Location location, double inputLatitude, double inputLongitude) {
             this.location = location;
             this.inputLatitude = inputLatitude;
             this.inputLongitude = inputLongitude;
         }
 
-        // Getter 및 Setter
         public Location getLocation() {
             return location;
         }
@@ -153,5 +154,4 @@ public class LocationController {
             this.inputLongitude = inputLongitude;
         }
     }
-
 }
