@@ -49,7 +49,53 @@ export default function MainScreen() {
   };
 
   const sendLocationToServer = async (deviceId, email, latitude, longitude) => {
-    // ... (기존 코드 유지)
+    try {
+      // 빈 문자열을 null로 변환
+      const trimmedEmail = email.trim() || null;
+      const trimmedInputEmail = inputEmail.trim() || null;
+
+      // 유효성 검사
+      if (!deviceId || !trimmedEmail || !latitude || !longitude) {
+        throw new Error('필수 필드가 누락되었습니다.');
+      }
+
+      const requestBody = {
+        location: {
+          deviceId,
+          email: trimmedEmail,
+          latitude,
+          longitude,
+        },
+        targetEmail: trimmedInputEmail
+      };
+
+      console.log('Sending request:', requestBody);
+
+      const response = await fetch('https://9cd5-58-151-101-222.ngrok-free.app/location/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP error! status: ${response.status}, ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (data.distance !== undefined) {
+        setDistance(data.distance);
+      } else {
+        console.error('Distance data is missing in response');
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
   };
 
   useEffect(() => {
