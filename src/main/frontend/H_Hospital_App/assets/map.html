@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>카카오 맵</title>
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=acb92b206b6bd053c6440e8e1db3ff2a&autoload=false"></script>
   <style>
     body, html { height: 100%; margin: 0; padding: 0; }
     #map { width: 100%; height: 100%; }
@@ -13,16 +13,15 @@
 <body>
   <div id="map"></div>
   <script>
-    var map;
-    function initMap() {
+    // 카카오 맵 API 로드 후 지도 초기화
+    kakao.maps.load(function() {
       var container = document.getElementById('map');
       var options = {
         center: new kakao.maps.LatLng(37.5665, 126.978),
         level: 3
       };
-      map = new kakao.maps.Map(container, options);
-    }
-    kakao.maps.load(initMap);
+      var map = new kakao.maps.Map(container, options);
+    });
   </script>
 </body>
 </html>
