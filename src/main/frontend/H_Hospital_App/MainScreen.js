@@ -28,16 +28,11 @@ export default function MainScreen() {
   useEffect(() => {
     if (isTracking) {
       const intervalId = setInterval(() => {
-<<<<<<< HEAD
-        getLocation();
-      }, 15000); // 30초마다 위치 업데이트
-=======
         getLocation(); // 내 위치 가져오기
         if (inputEmail) {
           getTargetLocation(inputEmail); // 상대방 위치 가져오기
         }
-      }, 30000); // 30초마다 위치 업데이트
->>>>>>> hcj
+      }, 10000); // 10초마다 위치 업데이트
       return () => clearInterval(intervalId);
     }
   }, [isTracking, inputEmail]);
@@ -266,7 +261,7 @@ export default function MainScreen() {
         onPress={() => setIsTracking(!isTracking)}
       />
 
-      {distance && <Text>거리: {distance.toFixed(2)} km</Text>}
+      {distance !== null && <Text>거리: {distance.toFixed(2)} km</Text>}
 
       <WebView
         ref={webViewRef}
