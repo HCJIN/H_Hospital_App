@@ -73,9 +73,11 @@ export default function MainScreen() {
 
   const sendLocationToServer = async (deviceId, email, latitude, longitude) => {
     try {
+      // 빈 문자열을 null로 변환
       const trimmedEmail = email.trim() || null;
       const trimmedInputEmail = inputEmail.trim() || null;
 
+      // 유효성 검사
       if (!deviceId || !trimmedEmail || !latitude || !longitude) {
         throw new Error('필수 필드가 누락되었습니다.');
       }
