@@ -25,8 +25,7 @@ export default function LoginScreen({ navigation }) {
 
 
   useEffect(() => {
-    console.log('111' + Device.osBuildId);
-    setDeviceId(Device.osBuildId || 'default-device-id'); // 디바이스 ID가 없을 경우 대체 값 설정
+    setDeviceId(Device.osBuildId || 'default-device-id');
     getLocation();
   }, []);
   
@@ -63,9 +62,7 @@ export default function LoginScreen({ navigation }) {
       params: { 
         email: member.email, 
         memPw: member.memPw,
-        deviceId : deviceId,
-        latitude : currentLocation.latitude,
-        longitude : currentLocation.longitude
+        deviceId : deviceId
       },
       withCredentials: true
     })

@@ -37,28 +37,15 @@ public class LocationController {
         }
     }
 
-    @GetMapping("/getAllUserLocation")
-    public List<LocationVO> getAllUserLocation(HttpSession session){
-        List<LocationVO> locaionList = new ArrayList<>();
+    @PostMapping("/getAllUserLocation")
+    public List<MemberVO> getAllUserLocation(@RequestBody MemberVO memberVO){ // 위도, 경도, 디비이스번호
+        //위도 경도 업데이트
+        //디비에 있는 모든 디바이스 번호 및 위도 경도 조회
 
-        Enumeration<String> sessionDatas = session.getAttributeNames();
+        System.out.println("@@@" + memberVO);
+        List<MemberVO> userAndLocationList = new ArrayList<>();
 
-        while (sessionDatas.hasMoreElements()) {
-            String attributeName = sessionDatas.nextElement();
-            MemberVO attributeValue = (MemberVO) session.getAttribute(attributeName);
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-            System.out.println(attributeName + " : " + attributeValue);
-
-            LocationVO location = new LocationVO();
-            location.setDeviceId(attributeValue.getDeviceId());
-            location.setEmail(attributeValue.getEmail());
-            location.setLatitude(attributeValue.getLatitude());
-            location.setLongitude(attributeValue.getLongitude());
-            locaionList.add(location);
-        }
-
-        System.out.println(locaionList.toString());
-        return locaionList;
+        return userAndLocationList;
     }
 
 

@@ -13,7 +13,7 @@
 <body>
   <div id="map"></div>
   <script>
-    var map, marker;
+    var map, marker, infowindow;
     function initMap() {
       try {
         var container = document.getElementById('map');
@@ -22,9 +22,24 @@
           level: 3
         };
         map = new kakao.maps.Map(container, options);
+
         marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(37.5665, 126.978)
         });
+
+        // 인포윈도우 내용
+        var iwContent = '<div style="padding:5px;">Hello World! <br>' +
+                        '<a href="https://map.kakao.com/link/map/Hello World!,37.5665, 126.978" style="color:blue" target="_blank">큰지도보기</a> ' +
+                        '<a href="https://map.kakao.com/link/to/Hello World!,37.5665, 126.978" style="color:blue" target="_blank">길찾기</a></div>';
+        
+        // 인포윈도우 생성
+        infowindow = new kakao.maps.InfoWindow({
+          position: new kakao.maps.LatLng(37.5665, 126.978), // 인포윈도우 표시 위치
+          content: iwContent // 인포윈도우 내용
+        });
+        
+        // 인포윈도우 지도에 표시
+        infowindow.open(map, marker);
         marker.setMap(map);
         window.ReactNativeWebView.postMessage('Map loaded successfully');
       } catch (error) {

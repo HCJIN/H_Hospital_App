@@ -21,29 +21,14 @@ public class MemberController {
     public MemberVO getMember(
             @RequestParam("email") String email,
             @RequestParam("memPw") String memPw,
-            @RequestParam("deviceId") String deviceId,
-            @RequestParam("latitude") double latitude,
-            @RequestParam("longitude") double longitude,
-            HttpSession session
+            @RequestParam("deviceId") String deviceId
+            //위도, 경도
     ) {
-        System.out.println("@@@@@" + deviceId);
 
-        //로그인 유저 조회
-        MemberVO member = memberService.getMember(email, memPw);
+        //로그인 진행
+        //로그인 성공 시 위도경도 아이디 디바이스번호 insert
 
-        //로그인 유저가 조회되면 스프링 세션에 로그인 정보 저장
-        if(member != null){
-            MemberVO loginInfo = new MemberVO();
-            loginInfo.setEmail(member.getEmail());
-            loginInfo.setMemRole(member.getMemRole());
-            loginInfo.setMemTel(member.getMemTel());
-            loginInfo.setDeviceId(deviceId);
-            loginInfo.setLatitude(latitude);
-            loginInfo.setLongitude(longitude);
-            session.setAttribute(deviceId, loginInfo);
-        }
-
-        return member;
+        return memberService.getMember(email, memPw);
     }
 
     // 회원가입시 데이터를 받아오는 메서드
