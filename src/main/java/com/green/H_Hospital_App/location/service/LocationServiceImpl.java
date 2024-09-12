@@ -2,6 +2,7 @@ package com.green.H_Hospital_App.location.service;
 
 import com.green.H_Hospital_App.location.util.Haversine;
 import com.green.H_Hospital_App.location.model.Location;
+import com.green.H_Hospital_App.location.service.LocationRepository;  // Import 추가
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,15 @@ public class LocationServiceImpl {
                 .orElseThrow(() -> {
                     logger.error("No location found except for email: {}", excludedEmail);
                     return new IllegalArgumentException("No location found for any email except the given email");
+                });
+    }
+
+    // 이메일로 위치 조회 메서드 추가
+    public Location getLocationByEmail(String email) {
+        return locationRepository.findTopByEmailOrderByIdDesc(email)
+                .orElseThrow(() -> {
+                    logger.error("No location found for email: {}", email);
+                    return new IllegalArgumentException("No location found for the given email");
                 });
     }
 }
