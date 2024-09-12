@@ -41,11 +41,4 @@
         );
     </insert>
 
-    <!-- 위치 업데이트 쿼리 추가 -->
-    <update id="updateLocation">
-        UPDATE HOSPITAL_MEMBER
-        SET latitude = #{latitude},
-        longitude = #{longitude}
-        WHERE EMAIL = #{email};
-    </update>
 </mapper>

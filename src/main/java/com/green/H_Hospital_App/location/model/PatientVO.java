@@ -1,9 +1,9 @@
 package com.green.H_Hospital_App.location.model;
 
-import jakarta.persistence.Entity;
+import lombok.Data;
 
-@Entity
-public class Patient extends Location {
+@Data
+public class PatientVO extends LocationVO {
 
     // Patient-specific attributes and methods
 }
