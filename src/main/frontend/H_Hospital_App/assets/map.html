@@ -14,25 +14,62 @@
   <div id="map"></div>
   <script>
     var map, marker;
+
     function initMap() {
       try {
         var container = document.getElementById('map');
         var options = {
-          center: new kakao.maps.LatLng(37.5665, 126.978),
+          center: new kakao.maps.LatLng(37.5665, 126.978), // 서울의 기본 위치
           level: 3
         };
         map = new kakao.maps.Map(container, options);
         marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(37.5665, 126.978)
+          position: new kakao.maps.LatLng(37.5665, 126.978) // 서울의 기본 위치
         });
         marker.setMap(map);
-        window.ReactNativeWebView.postMessage('Map loaded successfully');
+
+        console.log("Map loaded successfully.");
+        window.ReactNativeWebView.postMessage('Map loaded');
       } catch (error) {
-        console.error('Error initializing map:', error.message);
+        console.error("Error initializing map:", error);
         window.ReactNativeWebView.postMessage('Error initializing map: ' + error.message);
       }
     }
-    kakao.maps.load(initMap);
+
+    initMap();
+    
+    function updateMapLocation(latitude, longitude) {
+      try {
+        if (map) {
+          var newLatLng = new kakao.maps.LatLng(latitude, longitude);
+          map.setCenter(newLatLng);
+
+          if (marker) {
+            marker.setPosition(newLatLng);
+          } else {
+            marker = new kakao.maps.Marker({
+              position: newLatLng
+            });
+            marker.setMap(map);
+          }
+
+          console.log("Map location updated.");
+          window.ReactNativeWebView.postMessage('Location updated');
+        } else {
+          console.error("Map is not initialized.");
+          window.ReactNativeWebView.postMessage('Map is not initialized');
+        }
+      } catch (error) {
+        console.error("Error updating location:", error);
+        window.ReactNativeWebView.postMessage('Error updating location: ' + error.message);
+      }
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.latitude && event.data.longitude) {
+        updateMapLocation(event.data.latitude, event.data.longitude);
+      }
+    });
   </script>
 </body>
 </html>

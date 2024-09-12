@@ -27,7 +27,6 @@ export default function MainScreen() {
       getLocation(); // 내 위치 가져오기
     }, 10000); // 30초마다 위치 업데이트
     return () => clearInterval(intervalId);
-   
   }, []);
 
 
