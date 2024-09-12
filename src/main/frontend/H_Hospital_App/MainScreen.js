@@ -13,7 +13,6 @@ export default function MainScreen() {
 
   const [distance, setDistance] = useState(null); 
   const [email, setEmail] = useState('');
-
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -21,11 +20,21 @@ export default function MainScreen() {
   // 디바이스 아이디
   useEffect(() => {
     setDeviceId(Device.osBuildId || 'default-device-id');
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const webViewRef = useRef(null);
+  const [allUserLocations, setAllUserLocations] = useState([]); // 여러 위치 데이터를 저장하는 state
+  const [deviceId, setDeviceId] = useState(''); // 추가된 부분
+
+  //디바이스 아이디 
+  useEffect(() => {
+   // console.log('111' + Device.osBuildId);
+    //setDeviceId(Device.osBuildId || 'default-device-id'); // 디바이스 ID가 없을 경우 대체 값 설정
   }, []);
 
   // 위치 추적 시작/중지
   useEffect(() => {
     const intervalId = setInterval(() => {
+      
       getLocation(); // 내 위치 가져오기
       getAllUserLocations(); // 전체 사용자 위치 가져오기
     }, 50000); // 100초마다 위치 업데이트
@@ -69,6 +78,31 @@ export default function MainScreen() {
       console.log('Error fetching all user locations:', error);
     });
   }
+
+  // 모든 유저 위치 가져오기
+  function getAllUserLocation(){
+    console.log('11111' + Device.osBuildId);
+    axios.post('https://79f6-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
+      latitude : currentLocation.latitude,
+      longitude : currentLocation.longitude,
+      deviceId : Device.osBuildId
+    }, {withCredentials: true})
+    .then((res) => {
+      console.log(res.data)
+      setAllUserLocations(res.data); // 서버로부터 받은 위치 데이터를 상태로 저장
+      updateAllMarkers(res.data); // 위치 데이터를 기반으로 마커 업데이트
+    })
+    .catch((error) => {console.log(error)});
+  }
+
+
+  // 지도 및 마커 업데이트
+  useEffect(() => {
+    if (currentLocation && mapLoaded) {
+      updateMapLocation(currentLocation.latitude, currentLocation.longitude);
+    }
+  }, [currentLocation, mapLoaded]);
+
 
   // 내 위치 가져오기
   const getLocation = () => {
@@ -182,8 +216,7 @@ export default function MainScreen() {
 </html>
 `;
 
-
-
+  
 
   const onWebViewMessage = (event) => {
     const message = event.nativeEvent.data;

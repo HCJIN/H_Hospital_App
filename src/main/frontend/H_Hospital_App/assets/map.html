@@ -40,7 +40,11 @@
         
         // 인포윈도우 지도에 표시
         infowindow.open(map, marker);
+<<<<<<< HEAD
 
+=======
+        marker.setMap(map);
+>>>>>>> ldh
         window.ReactNativeWebView.postMessage('Map loaded successfully');
       } catch (error) {
         console.error('Error initializing map:', error.message);
