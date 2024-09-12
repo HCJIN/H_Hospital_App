@@ -3,12 +3,15 @@ package com.green.H_Hospital_App.location.controller;
 import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import com.green.H_Hospital_App.member.vo.MemberVO;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -33,5 +36,28 @@ public class LocationController {
         }
     }
 
+    @GetMapping("/getAllUserLocation")
+    public List<LocationVO> getAllUserLocation(HttpSession session){
+        List<LocationVO> locaionList = new ArrayList<>();
+
+        Enumeration<String> sessionDatas = session.getAttributeNames();
+
+        while (sessionDatas.hasMoreElements()) {
+            String attributeName = sessionDatas.nextElement();
+            MemberVO attributeValue = (MemberVO) session.getAttribute(attributeName);
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println(attributeName + " : " + attributeValue);
+
+            LocationVO location = new LocationVO();
+            location.setDeviceId(attributeValue.getDeviceId());
+            location.setEmail(attributeValue.getEmail());
+            location.setLatitude(attributeValue.getLatitude());
+            location.setLongitude(attributeValue.getLongitude());
+            locaionList.add(location);
+        }
+
+        System.out.println(locaionList.toString());
+        return locaionList;
+    }
 
 }

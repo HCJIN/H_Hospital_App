@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as Crypto from 'expo-crypto';
 import { WebView } from 'react-native-webview';
+import axios from 'axios';
 
 export default function MainScreen() {
   //초기위치세팅 : 서울쪽
@@ -25,11 +26,31 @@ export default function MainScreen() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation(); // 내 위치 가져오기
+<<<<<<< HEAD
     }, 10000); // 30초마다 위치 업데이트
     return () => clearInterval(intervalId);
   }, []);
 
 
+=======
+
+      getAllUserLocation();
+
+    }, 10000); // 30초마다 위치 업데이트
+    return () => clearInterval(intervalId);
+   
+  }, []);
+
+  function getAllUserLocation(){
+    axios.get('https://79f6-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {withCredentials: true})
+    .then((res) => {
+      console.log(res.data)
+    })
+    .catch((error) => {console.log(error)});
+  }
+
+
+>>>>>>> hcj
   // 지도 및 마커 업데이트
   useEffect(() => {
     if (currentLocation && mapLoaded) {
