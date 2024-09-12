@@ -15,18 +15,18 @@ public class MemberController {
     @GetMapping("/getMember")
     public MemberVO getMember(
             @RequestParam("email") String email,
-            @RequestParam("memPw") String memPw
+            @RequestParam("memPw") String memPw,
+            @RequestParam(value = "deviceId", required = false, defaultValue = "default-device-id") String deviceId
     ) {
+        // 이메일과 비밀번호를 기반으로 멤버를 가져오는 로직
         return memberService.getMember(email, memPw);
     }
 
-    // 회원가입시 데이터를 받아오는 메서드
     @PostMapping("/insertMember")
     public void insertMember(@RequestBody MemberVO memberVO){
         memberService.insertMember(memberVO);
     }
 
-    // 위치 업데이트 엔드포인트 추가
     @PostMapping("/updateLocation")
     public void updateLocation(@RequestBody MemberVO memberVO) {
         memberService.updateLocation(memberVO.getEmail(), memberVO.getLatitude(), memberVO.getLongitude());

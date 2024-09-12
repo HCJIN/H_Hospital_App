@@ -37,16 +37,16 @@ export default function LoginScreen({ navigation }) {
       alert('이메일과 비밀번호를 입력해주세요.');
       return;
     }
-
+  
     try {
       const response = await axios.get("https://79f6-58-151-101-222.ngrok-free.app/member/getMember", {
         params: { 
           email: member.email, 
-          memPw: member.memPw 
+          memPw: member.memPw
         },
         withCredentials: true
       });
-
+  
       if (response.data && response.data.memName) {
         setMemberData(response.data);
         await getLocation();
@@ -62,12 +62,12 @@ export default function LoginScreen({ navigation }) {
         }
       } else {
         alert('로그인에 실패하였습니다.');
-        }
-      } catch (error) {
-        alert('로그인에 실패하였습니다.');
-        console.log('Error:', error.response ? error.response.data : error.message);
       }
-    };
+    } catch (error) {
+      alert('로그인에 실패하였습니다.');
+      console.log('Error:', error.response ? error.response.data : error.message);
+    }
+  };
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
