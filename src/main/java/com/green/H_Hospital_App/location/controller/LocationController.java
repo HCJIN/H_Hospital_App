@@ -1,14 +1,20 @@
 package com.green.H_Hospital_App.location.controller;
 
-import com.green.H_Hospital_App.location.model.Location;
+import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationServiceImpl;
+import com.green.H_Hospital_App.member.vo.MemberVO;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.sql.SQLOutput;
+import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/location")
 public class LocationController {
@@ -16,33 +22,43 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService;
 
-    // 위치 정보 저장
-    @PostMapping("/save")
-    public ResponseEntity<String> saveLocation(@RequestBody Location location) {
+    @GetMapping("/get")
+    public ResponseEntity<Map<String, Object>> getLocation() {
         try {
-            locationService.saveLocation(location);
-            return ResponseEntity.ok("위치 정보가 저장되었습니다.");
+            // 예제용으로 임시 데이터 생성
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "위치 정보를 가져왔습니다.");
+            response.put("location", "예제 데이터");
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("위치 정보 저장에 실패했습니다.");
+            log.error("Server error in getLocation: ", e);
+            return ResponseEntity.internalServerError().body(Map.of("error", "서버 오류가 발생했습니다."));
         }
     }
 
-    // 특정 사용자의 최신 위치 정보 가져오기
-    @GetMapping("/latest/{email}")
-    public ResponseEntity<Location> getLatestLocation(@PathVariable String email) {
-        Optional<Location> location = locationService.getLatestLocation(email);
-        if (location.isPresent()) {
-            return ResponseEntity.ok(location.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    @GetMapping("/getAllUserLocation")
+    public List<LocationVO> getAllUserLocation(HttpSession session){
+        List<LocationVO> locaionList = new ArrayList<>();
 
-    // 모든 사용자 위치 정보 가져오기
-    @GetMapping("/all")
-    public ResponseEntity<List<Location>> getAllLocations() {
-        List<Location> locations = locationService.getAllLocations();
-        return ResponseEntity.ok(locations);
+        Enumeration<String> sessionDatas = session.getAttributeNames();
+
+        while (sessionDatas.hasMoreElements()) {
+            String attributeName = sessionDatas.nextElement();
+            MemberVO attributeValue = (MemberVO) session.getAttribute(attributeName);
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println(attributeName + " : " + attributeValue);
+
+            LocationVO location = new LocationVO();
+            location.setDeviceId(attributeValue.getDeviceId());
+            location.setEmail(attributeValue.getEmail());
+            location.setLatitude(attributeValue.getLatitude());
+            location.setLongitude(attributeValue.getLongitude());
+            locaionList.add(location);
+        }
+
+        System.out.println(locaionList.toString());
+        return locaionList;
     }
 
 

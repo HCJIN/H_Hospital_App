@@ -3,7 +3,12 @@ package com.green.H_Hospital_App.member.controller;
 import com.green.H_Hospital_App.member.service.MemberService;
 import com.green.H_Hospital_App.member.vo.MemberVO;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 @RestController
 @RequestMapping("/member")
@@ -16,19 +21,43 @@ public class MemberController {
     public MemberVO getMember(
             @RequestParam("email") String email,
             @RequestParam("memPw") String memPw,
-            @RequestParam(value = "deviceId", required = false, defaultValue = "default-device-id") String deviceId
+            @RequestParam("deviceId") String deviceId,
+            HttpSession session
     ) {
-        // 이메일과 비밀번호를 기반으로 멤버를 가져오는 로직
-        return memberService.getMember(email, memPw);
+        System.out.println("@@@@@" + deviceId);
+
+        //로그인 유저 조회
+        MemberVO member = memberService.getMember(email, memPw);
+
+        //로그인 유저가 조회되면 스프링 세션에 로그인 정보 저장
+        if(member != null){
+            MemberVO loginInfo = new MemberVO();
+            loginInfo.setEmail(member.getEmail());
+            loginInfo.setMemRole(member.getMemRole());
+            loginInfo.setMemTel(member.getMemTel());
+            loginInfo.setDeviceId(deviceId);
+            session.setAttribute(deviceId, loginInfo);
+        }
+
+
+        Enumeration<String> deviceIds = session.getAttributeNames();
+
+        List<String> deviceIdList = Collections.list(deviceIds);
+
+        for(String e :deviceIdList){
+            MemberVO sessionData =  (MemberVO) session.getAttribute(e);
+            System.out.println(sessionData);
+        }
+
+
+        return member;
     }
 
+    // 회원가입시 데이터를 받아오는 메서드
     @PostMapping("/insertMember")
     public void insertMember(@RequestBody MemberVO memberVO){
         memberService.insertMember(memberVO);
     }
 
-    @PostMapping("/updateLocation")
-    public void updateLocation(@RequestBody MemberVO memberVO) {
-        memberService.updateLocation(memberVO.getEmail(), memberVO.getLatitude(), memberVO.getLongitude());
-    }
+
 }
