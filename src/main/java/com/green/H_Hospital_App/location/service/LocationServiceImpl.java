@@ -80,12 +80,12 @@ public class LocationServiceImpl {
                 });
     }
 
-    // 이메일로 위치 조회 메서드 추가
+    // 이메일로 위치 조회 메서드
     public Location getLocationByEmail(String email) {
         return locationRepository.findTopByEmailOrderByIdDesc(email)
                 .orElseThrow(() -> {
                     logger.error("No location found for email: {}", email);
-                    return new IllegalArgumentException("No location found for the given email");
+                    return new IllegalArgumentException("No location found for the given email: " + email);
                 });
     }
 }

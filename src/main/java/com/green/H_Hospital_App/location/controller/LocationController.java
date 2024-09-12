@@ -44,19 +44,14 @@ public class LocationController {
             }
 
             // Retrieve target location
-            // Calculate distance only if target location exists
-            // Calculate the distance and retrieve target location
-            double distance = locationService.calculateDistanceFromInputLocation(targetEmail, location.getLatitude(), location.getLongitude());
             Location targetLocation = locationService.getLocationByEmail(targetEmail);
+
+            // Calculate distance only if target location exists
+            double distance = locationService.calculateDistanceFromInputLocation(targetEmail, location.getLatitude(), location.getLongitude());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "위치 정보가 저장되었습니다.");
             response.put("distance", distance);
-            if (targetLocation != null) {
-                response.put("targetLocation", targetLocation);
-            } else {
-                response.put("targetLocation", "Target location not found");
-            }
 
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
@@ -67,7 +62,6 @@ public class LocationController {
             return ResponseEntity.internalServerError().body(Map.of("error", "서버 오류가 발생했습니다."));
         }
     }
-
 
     @PostMapping("/updateLocation")
     public ResponseEntity<Map<String, Object>> updateLocation(@RequestBody LocationUpdateRequest updateRequest) {
@@ -111,6 +105,7 @@ public class LocationController {
         }
     }
 
+    // LocationRequest 클래스 정의
     public static class LocationRequest {
         private Location location;
         private String targetEmail;
@@ -132,6 +127,7 @@ public class LocationController {
         }
     }
 
+    // LocationUpdateRequest 클래스 정의
     public static class LocationUpdateRequest {
         private Location location;
         private double inputLatitude;
