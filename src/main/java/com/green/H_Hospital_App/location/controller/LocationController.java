@@ -2,6 +2,8 @@ package com.green.H_Hospital_App.location.controller;
 
 import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationServiceImpl;
+import com.green.H_Hospital_App.member.vo.MemberVO;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLOutput;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -33,6 +35,30 @@ public class LocationController {
             log.error("Server error in getLocation: ", e);
             return ResponseEntity.internalServerError().body(Map.of("error", "서버 오류가 발생했습니다."));
         }
+    }
+
+    @GetMapping("/getAllUserLocation")
+    public List<LocationVO> getAllUserLocation(HttpSession session){
+        List<LocationVO> locaionList = new ArrayList<>();
+
+        Enumeration<String> sessionDatas = session.getAttributeNames();
+
+        while (sessionDatas.hasMoreElements()) {
+            String attributeName = sessionDatas.nextElement();
+            MemberVO attributeValue = (MemberVO) session.getAttribute(attributeName);
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println(attributeName + " : " + attributeValue);
+
+            LocationVO location = new LocationVO();
+            location.setDeviceId(attributeValue.getDeviceId());
+            location.setEmail(attributeValue.getEmail());
+            location.setLatitude(attributeValue.getLatitude());
+            location.setLongitude(attributeValue.getLongitude());
+            locaionList.add(location);
+        }
+
+        System.out.println(locaionList.toString());
+        return locaionList;
     }
 
 

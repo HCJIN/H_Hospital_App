@@ -22,6 +22,8 @@ public class MemberController {
             @RequestParam("email") String email,
             @RequestParam("memPw") String memPw,
             @RequestParam("deviceId") String deviceId,
+            @RequestParam("latitude") double latitude,
+            @RequestParam("longitude") double longitude,
             HttpSession session
     ) {
         System.out.println("@@@@@" + deviceId);
@@ -36,19 +38,10 @@ public class MemberController {
             loginInfo.setMemRole(member.getMemRole());
             loginInfo.setMemTel(member.getMemTel());
             loginInfo.setDeviceId(deviceId);
+            loginInfo.setLatitude(latitude);
+            loginInfo.setLongitude(longitude);
             session.setAttribute(deviceId, loginInfo);
         }
-
-
-        Enumeration<String> deviceIds = session.getAttributeNames();
-
-        List<String> deviceIdList = Collections.list(deviceIds);
-
-        for(String e :deviceIdList){
-            MemberVO sessionData =  (MemberVO) session.getAttribute(e);
-            System.out.println(sessionData);
-        }
-
 
         return member;
     }
