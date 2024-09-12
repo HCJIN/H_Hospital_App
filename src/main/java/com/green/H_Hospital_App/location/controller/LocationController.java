@@ -44,14 +44,19 @@ public class LocationController {
             }
 
             // Retrieve target location
-            Location targetLocation = locationService.getLocationByEmail(targetEmail);
-
             // Calculate distance only if target location exists
+            // Calculate the distance and retrieve target location
             double distance = locationService.calculateDistanceFromInputLocation(targetEmail, location.getLatitude(), location.getLongitude());
+            Location targetLocation = locationService.getLocationByEmail(targetEmail);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "위치 정보가 저장되었습니다.");
             response.put("distance", distance);
+            if (targetLocation != null) {
+                response.put("targetLocation", targetLocation);
+            } else {
+                response.put("targetLocation", "Target location not found");
+            }
 
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {

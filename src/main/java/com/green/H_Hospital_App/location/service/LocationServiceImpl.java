@@ -80,7 +80,7 @@ public class LocationServiceImpl {
                 });
     }
 
-    // 이메일로 위치를 가져오는 메서드
+    // 이메일로 위치 조회 메서드 추가
     public Location getLocationByEmail(String email) {
         return locationRepository.findTopByEmailOrderByIdDesc(email)
                 .orElseThrow(() -> {
