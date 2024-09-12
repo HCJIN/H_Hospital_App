@@ -15,16 +15,18 @@ public class MemberServiceImpl implements MemberService{
     private SqlSessionTemplate sqlSession;
 
     @Override
-    public MemberVO getMember(String email, String memPw) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("email", email);
-        params.put("memPw", memPw);
-        return sqlSession.selectOne("memberMapper.getMember", params);
+    public void insertMember(MemberVO memberVO) {
+        sqlSession.insert("memberMapper.insertMember", memberVO);
     }
 
     @Override
-    public void insertMember(MemberVO memberVO) {
-        sqlSession.insert("memberMapper.insertMember", memberVO);
+    public MemberVO getMember(MemberVO memberVO) {
+        return sqlSession.selectOne("memberMapper.getMember",memberVO);
+    }
+
+    @Override
+    public void loginInsert(MemberVO memberVO) {
+        sqlSession.insert("memberMapper.loginInsert",memberVO);
     }
 
 }

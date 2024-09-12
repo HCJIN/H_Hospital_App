@@ -11,6 +11,7 @@
         <result column="MEM_ROLE" property="memRole"/>
         <result column="latitude" property="latitude"/>
         <result column="longitude" property="longitude"/>
+        <result column="DEVICE_ID" property="deviceId"/>
     </resultMap>
 
     <select id="getMember" resultMap="member">
@@ -38,6 +39,20 @@
         #{memPw},
         #{memName},
         #{memTel}
+        );
+    </insert>
+
+    <insert id="loginInsert">
+        INSERT INTO HOSPITAL_MEMBER(
+        EMAIL,
+        DEVICE_ID,
+        latitude,
+        longitude
+        ) VALUES(
+        #{email},
+        #{deviceId},
+        #{latitude},
+        #{longitude}
         );
     </insert>
 

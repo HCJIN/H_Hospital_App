@@ -13,83 +13,41 @@
 <body>
   <div id="map"></div>
   <script>
-    var map;
-    var markers = [];
-
+    var map, marker, infowindow;
     function initMap() {
       try {
         var container = document.getElementById('map');
         var options = {
-          center: new kakao.maps.LatLng(37.5665, 126.978), // 서울의 기본 위치
+          center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 3
         };
         map = new kakao.maps.Map(container, options);
+
+        marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(37.5665, 126.978)
+        });
+
+        // 인포윈도우 내용
+        var iwContent = '<div style="padding:5px;">Hello World! <br>' +
+                        '<a href="https://map.kakao.com/link/map/Hello World!,37.5665, 126.978" style="color:blue" target="_blank">큰지도보기</a> ' +
+                        '<a href="https://map.kakao.com/link/to/Hello World!,37.5665, 126.978" style="color:blue" target="_blank">길찾기</a></div>';
         
-        console.log("Map loaded successfully.");
-        window.ReactNativeWebView.postMessage('Map loaded');
+        // 인포윈도우 생성
+        infowindow = new kakao.maps.InfoWindow({
+          position: new kakao.maps.LatLng(37.5665, 126.978), // 인포윈도우 표시 위치
+          content: iwContent // 인포윈도우 내용
+        });
         
-        // 로그인 후 위치 데이터 요청
-        fetchLocationData();
+        // 인포윈도우 지도에 표시
+        infowindow.open(map, marker);
+
+        window.ReactNativeWebView.postMessage('Map loaded successfully');
       } catch (error) {
-        console.error("Error initializing map:", error);
+        console.error('Error initializing map:', error.message);
         window.ReactNativeWebView.postMessage('Error initializing map: ' + error.message);
       }
     }
-
-    function fetchLocationData() {
-      // 서버에서 모든 사용자 위치 데이터 가져오기
-      fetch('https://your-server-endpoint/locations') // 서버의 위치 데이터 엔드포인트
-        .then(response => response.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            data.forEach(userLocation => {
-              if (userLocation.latitude && userLocation.longitude) {
-                addMarker(userLocation.latitude, userLocation.longitude, userLocation.label || 'User');
-              }
-            });
-          } else {
-            console.error('Invalid location data format');
-            window.ReactNativeWebView.postMessage('Invalid location data format');
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching location data:', error);
-          window.ReactNativeWebView.postMessage('Error fetching location data: ' + error.message);
-        });
-    }
-
-    function addMarker(latitude, longitude, label) {
-      try {
-        if (map) {
-          var newLatLng = new kakao.maps.LatLng(latitude, longitude);
-          
-          // 새로운 마커 추가
-          var newMarker = new kakao.maps.Marker({
-            position: newLatLng,
-            title: label
-          });
-          newMarker.setMap(map);
-          markers.push(newMarker);
-
-          map.setCenter(newLatLng);
-
-          console.log("Marker added at:", latitude, longitude);
-          window.ReactNativeWebView.postMessage('Marker added');
-        } else {
-          console.error("Map is not initialized.");
-          window.ReactNativeWebView.postMessage('Map is not initialized');
-        }
-      } catch (error) {
-        console.error("Error adding marker:", error);
-        window.ReactNativeWebView.postMessage('Error adding marker: ' + error.message);
-      }
-    }
-
-    window.addEventListener('message', function(event) {
-      if (event.data && event.data.latitude && event.data.longitude) {
-        addMarker(event.data.latitude, event.data.longitude, event.data.label);
-      }
-    });
+    kakao.maps.load(initMap);
   </script>
 </body>
 </html>

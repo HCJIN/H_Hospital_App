@@ -8,13 +8,10 @@ export default function LoginScreen({ navigation }) {
   const [member, setMember] = useState({ email: '', memPw: '' });
   const [memberData, setMemberData] = useState({});
   const [deviceId, setDeviceId] = useState(''); // 추가된 부분
-<<<<<<< HEAD
-=======
   const [currentLocation, setCurrentLocation] = useState({
     latitude: 37.5665,
     longitude: 126.978
   });
->>>>>>> hcj
 
   const handleChange = (field, value) => {
     setMember(prevState => ({ ...prevState, [field]: value }));
@@ -28,12 +25,7 @@ export default function LoginScreen({ navigation }) {
 
 
   useEffect(() => {
-    console.log('111' + Device.osBuildId);
-    setDeviceId(Device.osBuildId || 'default-device-id'); // 디바이스 ID가 없을 경우 대체 값 설정
-<<<<<<< HEAD
-  }, []);
-  
-=======
+    setDeviceId(Device.osBuildId || 'default-device-id');
     getLocation();
   }, []);
   
@@ -57,7 +49,6 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
->>>>>>> hcj
   //로그인 버튼 틀릭 시 실행 함수
   const selectMemberInfo = async () => {
     //id, pw 비어있으면 alert 실행
@@ -71,13 +62,7 @@ export default function LoginScreen({ navigation }) {
       params: { 
         email: member.email, 
         memPw: member.memPw,
-<<<<<<< HEAD
         deviceId : deviceId
-=======
-        deviceId : deviceId,
-        latitude : currentLocation.latitude,
-        longitude : currentLocation.longitude
->>>>>>> hcj
       },
       withCredentials: true
     })
