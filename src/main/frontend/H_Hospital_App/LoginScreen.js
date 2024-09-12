@@ -39,7 +39,7 @@ export default function LoginScreen({ navigation }) {
     }
 
     try {
-      const response = await axios.get("https://9cd5-58-151-101-222.ngrok-free.app/member/getMember", {
+      const response = await axios.get("https://79f6-58-151-101-222.ngrok-free.app/member/getMember", {
         params: { 
           email: member.email, 
           memPw: member.memPw 
@@ -91,7 +91,7 @@ export default function LoginScreen({ navigation }) {
         latitude,
         longitude
       }); // 디버깅 로그
-      const response = await axios.post("https://9cd5-58-151-101-222.ngrok-free.app/member/updateLocation", {
+      const response = await axios.post("https://79f6-58-151-101-222.ngrok-free.app/member/updateLocation", {
         email: email, // 여기에 적절한 email 값을 전달
         latitude: latitude,
         longitude: longitude
