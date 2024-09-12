@@ -69,7 +69,7 @@ export default function MainScreen() {
   // 상대방 위치 가져오기
   const getTargetLocation = async (targetEmail) => {
     try {
-      const response = await fetch(`https://9cd5-58-151-101-222.ngrok-free.app/location/get?email=${targetEmail}`);
+      const response = await fetch(`https://79f6-58-151-101-222.ngrok-free.app/location/get?email=${targetEmail}`);
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`HTTP error! status: ${response.status}, ${errorText}`);
@@ -108,7 +108,7 @@ export default function MainScreen() {
 
       console.log('Sending request:', requestBody);
 
-      const response = await fetch('https://9cd5-58-151-101-222.ngrok-free.app/location/save', {
+      const response = await fetch('https://79f6-58-151-101-222.ngrok-free.app/location/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
