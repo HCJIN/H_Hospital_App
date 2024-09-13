@@ -49,49 +49,48 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
-  //로그인 버튼 틀릭 시 실행 함수
-  const selectMemberInfo = async () => {
-    //id, pw 비어있으면 alert 실행
-    if (!member.email || !member.memPw) {
-      alert('이메일과 비밀번호를 입력해주세요.');
-      return;
+  // 로그인 버튼 클릭 시 실행 함수
+const selectMemberInfo = async () => {
+  // 이메일과 비밀번호가 비어 있으면 알림 표시
+  if (!member.email || !member.memPw) {
+    alert('이메일과 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  // 로그인 기능 시작 (POST 요청)
+  axios.post('https://b64c-58-151-101-222.ngrok-free.app/member/getMember', {
+    email: member.email, 
+    memPw: member.memPw,
+    deviceId: deviceId,
+    latitude: currentLocation.latitude,
+    longitude: currentLocation.longitude
+  }, {
+    withCredentials: true
+  })
+  .then((res) => {
+    // 로그인 성공
+    if (res.data != null) {
+      // 조회한 로그인 정보를 memberData 변수에 저장
+      setMemberData(res.data);
+
+      // 로그인한 유저의 권한에 따라 페이지 이동
+      if (res.data.memRole === 'ADMIN') {
+        console.log('go AdminScreen');
+        navigation.navigate('AdminScreen');
+      } else {
+        console.log('go Main');
+        navigation.navigate('Main');
+      }
+    } 
+    // 로그인 실패
+    else {
+      alert('로그인에 실패하였습니다.');
     }
-
-    //로그인 기능 시작
-    axios.get('https://79f6-58-151-101-222.ngrok-free.app/member/getMember', {
-      params: { 
-        email: member.email, 
-        memPw: member.memPw,
-        deviceId : deviceId
-      },
-      withCredentials: true
-    })
-    .then((res) => {
-      //로그인 성공
-      if(res.data != null){
-        //조회한 로그인 정보를 memberData 변수에 저장
-        setMemberData(res.data);
-
-        //로그인 한 유저의 위치 정보를 currentLocation 변수에 저장 -> 지금은 필요없어 보임. 확인 후 삭제 요망
-        //getLocation();
-      
-        //로그인한 유저의 권한에 따라 페이지 이동
-        if(res.data.memRole == 'ADMIN'){
-          console.log('go AdminScreen')
-          navigation.navigate('AdminScreen')
-        }
-        else{
-          console.log('go Main')
-          navigation.navigate('Main');
-        }
-      }
-      //로그인 실패
-      else{
-        alert('로그인에 실패하였습니다.');
-      }
-    })
-    .catch((error) => {console.log(error)});    
-  };
+  })
+  .catch((error) => {
+    console.log('로그인 에러:', error);
+  });
+};
 
 
   // const getLocation = async () => {

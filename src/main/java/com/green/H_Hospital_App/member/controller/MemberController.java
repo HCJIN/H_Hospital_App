@@ -2,13 +2,10 @@ package com.green.H_Hospital_App.member.controller;
 
 import com.green.H_Hospital_App.member.service.MemberService;
 import com.green.H_Hospital_App.member.vo.MemberVO;
+import com.green.H_Hospital_App.location.model.LocationVO;
+import com.green.H_Hospital_App.location.service.LocationService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 
 @RestController
 @RequestMapping("/member")
@@ -17,41 +14,35 @@ public class MemberController {
     @Resource(name = "memberService")
     private MemberService memberService;
 
-    @GetMapping("/getMember")
-    public MemberVO getMember(
-<<<<<<< HEAD
-            @RequestBody MemberVO memberVO
-            //위도, 경도
-    ) {
-        //로그인 진행
-        boolean result = memberService.getMember(memberVO) != null;
+    @Resource(name = "locationService")
+    private LocationService locationService;
 
-        //로그인 성공 시 위도경도 아이디 디바이스번호 insert
-        if(result){
-            memberService.insertMember(memberVO);
-        }else{
+    @PostMapping("/getMember")
+    public MemberVO getMember(@RequestBody MemberVO memberVO) {
+        // 로그인 진행
+        MemberVO loggedInMember = memberService.getMember(memberVO);
 
+        // 로그인 성공 시 위치 정보 업데이트
+        if (loggedInMember != null) {
+            // Create a LocationVO from the MemberVO
+            LocationVO locationVO = new LocationVO();
+            locationVO.setDeviceId(memberVO.getDeviceId());
+            locationVO.setLatitude(memberVO.getLatitude());
+            locationVO.setLongitude(memberVO.getLongitude());
+
+            // Update location information
+            locationService.updateLocation(locationVO);
+
+            // Optionally, return the MemberVO or a response indicating success
+            return loggedInMember;
         }
+
+        // 로그인 실패 시 null 반환
         return null;
-=======
-            @RequestParam("email") String email,
-            @RequestParam("memPw") String memPw,
-            @RequestParam("deviceId") String deviceId
-            //위도, 경도
-    ) {
-
-        //로그인 진행
-        //로그인 성공 시 위도경도 아이디 디바이스번호 insert
-
-        return memberService.getMember(email, memPw);
->>>>>>> ldh
     }
 
-    // 회원가입시 데이터를 받아오는 메서드
     @PostMapping("/insertMember")
-    public void insertMember(@RequestBody MemberVO memberVO){
+    public void insertMember(@RequestBody MemberVO memberVO) {
         memberService.insertMember(memberVO);
     }
-
-
 }
