@@ -28,7 +28,7 @@ export default function MainScreen() {
     const intervalId = setInterval(() => {
       getLocation(); // 내 위치 가져오기
       getAllUserLocations(); // 전체 사용자 위치 가져오기
-    }, 10000); // 5초마다 위치 업데이트
+    }, 30000); // 30초마다 위치 업데이트
 
     return () => clearInterval(intervalId);
   }, [currentLocation]);
@@ -43,13 +43,15 @@ export default function MainScreen() {
       email: email
     }, { withCredentials: true })
     .then((res) => {
-      console.log('All user locations:', res.data);
+      console.log('All user locations:', res.data.length);
       // 웹뷰에 사용자 위치를 업데이트합니다.
       if (webViewRef.current) {
+        // 사용자 위치 정보를 기반으로 마커 추가 JavaScript 코드 생성
         const markers = res.data.map(user => `
           var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
           var userMarker = new kakao.maps.Marker({
-            position: userLatLng
+            position: userLatLng,
+            title: '${user.deviceId}'
           });
           userMarker.setMap(map);
         `).join('\n');
@@ -59,6 +61,11 @@ export default function MainScreen() {
             if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
               throw new Error('Kakao Maps library is not loaded.');
             }
+            // 현재 위치 마커 업데이트
+            var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+            marker.setPosition(newLatLng);
+            map.setCenter(newLatLng);
+            // 모든 사용자 마커 추가
             ${markers}
             window.ReactNativeWebView.postMessage('All user locations updated');
           } catch (error) {

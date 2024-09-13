@@ -3,6 +3,7 @@ package com.green.H_Hospital_App.location.controller;
 import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationService;
 import com.green.H_Hospital_App.member.vo.MemberVO;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import java.util.HashMap;
 @RequestMapping("/location")
 public class LocationController {
 
-    @Autowired
+    @Resource(name = "locationService")
     private LocationService locationService;
 
     @GetMapping("/get")

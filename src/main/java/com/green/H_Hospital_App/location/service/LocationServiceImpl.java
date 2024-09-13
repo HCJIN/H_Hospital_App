@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-@Service
+@Service("locationService")
 public class LocationServiceImpl implements LocationService {
 
     // 디바이스 아이디를 키로 사용하여 LocationVO를 저장할 Map
