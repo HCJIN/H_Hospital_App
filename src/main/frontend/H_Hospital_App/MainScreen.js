@@ -28,19 +28,22 @@ export default function MainScreen() {
     const intervalId = setInterval(() => {
       getLocation(); // 내 위치 가져오기
       getAllUserLocations(); // 전체 사용자 위치 가져오기
-    }, 50000); // 100초마다 위치 업데이트
-    return () => clearInterval(intervalId);
-  }, []);
+    }, 10000); // 5초마다 위치 업데이트
 
+    return () => clearInterval(intervalId);
+  }, [currentLocation]);
+
+  // 전체 사용자 위치 가져오기
   function getAllUserLocations() {
     console.log('Device ID: ' + deviceId);
-    axios.post('https://79f6-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
+    axios.post('https://b64c-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
-      deviceId: deviceId
+      deviceId: deviceId,
+      email: email
     }, { withCredentials: true })
     .then((res) => {
-      console.log('All user locations:', res.data.length);
+      console.log('All user locations:', res.data);
       // 웹뷰에 사용자 위치를 업데이트합니다.
       if (webViewRef.current) {
         const markers = res.data.map(user => `
@@ -86,6 +89,7 @@ export default function MainScreen() {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
+      updateMapLocation(location.coords.latitude, location.coords.longitude);
     })
     .catch(error => {
       console.error('Error getting location:', error);
@@ -137,37 +141,28 @@ export default function MainScreen() {
       try {
         var container = document.getElementById('map');
         var options = {
-          center: new kakao.maps.LatLng(35.5420093, 129.3382968),
+          center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           level: 5
         };
 
         map = new kakao.maps.Map(container, options);
 
-        // 테스트 마커 추가
-        var testLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-        var testMarker = new kakao.maps.Marker({
-          position: testLatLng,
-          title: '테스트 마커'
-        });
-        testMarker.setMap(map);
-
         // 현재 위치 마커 추가
-        var currentLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}+0.01);
-        var currentMarker = new kakao.maps.Marker({
-          position: currentLatLng,
+        marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           title: '현재 위치'
         });
-        currentMarker.setMap(map);
+        marker.setMap(map);
 
         var iwContent = '<div style="padding:5px;">Hello World! <br>' +
                       '<a href="https://map.kakao.com/link/map/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">큰지도보기</a> ' +
                       '<a href="https://map.kakao.com/link/to/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">길찾기</a></div>';
 
         infowindow = new kakao.maps.InfoWindow({
-          position: currentLatLng,
+          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           content: iwContent
         });
-        infowindow.open(map, currentMarker);
+        infowindow.open(map, marker);
 
         console.log('Markers added successfully');
         window.ReactNativeWebView.postMessage('Map loaded successfully with markers');
@@ -182,19 +177,18 @@ export default function MainScreen() {
 </html>
 `;
 
-
-
-
   const onWebViewMessage = (event) => {
     const message = event.nativeEvent.data;
     console.log('Message from WebView:', message);
-    if (message === 'Map loaded successfully') {
+    if (message === 'Map loaded successfully with markers') {
       setMapLoaded(true);
       if (currentLocation) {
         updateMapLocation(currentLocation.latitude, currentLocation.longitude);
       }
     } else if (message.startsWith('Error')) {
       console.error('WebView error:', message);
+    } else if (message === 'All user locations updated') {
+      console.log('All user locations updated successfully');
     }
   };
 

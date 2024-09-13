@@ -26,7 +26,7 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public void loginInsert(MemberVO memberVO) {
-        sqlSession.insert("memberMapper.loginInsert",memberVO);
+        sqlSession.update("memberMapper.loginInsert",memberVO);
     }
 
 }
