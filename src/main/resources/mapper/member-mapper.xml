@@ -42,18 +42,12 @@
         );
     </insert>
 
-    <insert id="loginInsert">
-        INSERT INTO HOSPITAL_MEMBER(
-        EMAIL,
-        DEVICE_ID,
-        latitude,
-        longitude
-        ) VALUES(
-        #{email},
-        #{deviceId},
-        #{latitude},
-        #{longitude}
-        );
-    </insert>
+    <update id="loginInsert">
+        UPDATE HOSPITAL_MEMBER
+        SET
+        DEVICE_ID = #{deviceId},
+        latitude = #{latitude},
+        longitude = #{longitude}
+    </update>
 
 </mapper>

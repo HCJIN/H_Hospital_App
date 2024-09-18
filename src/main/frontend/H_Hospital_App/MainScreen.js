@@ -13,6 +13,7 @@ export default function MainScreen() {
 
   const [distance, setDistance] = useState(null); 
   const [email, setEmail] = useState('');
+
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -20,42 +21,37 @@ export default function MainScreen() {
   // 디바이스 아이디
   useEffect(() => {
     setDeviceId(Device.osBuildId || 'default-device-id');
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const webViewRef = useRef(null);
-  const [allUserLocations, setAllUserLocations] = useState([]); // 여러 위치 데이터를 저장하는 state
-  const [deviceId, setDeviceId] = useState(''); // 추가된 부분
-
-  //디바이스 아이디 
-  useEffect(() => {
-   // console.log('111' + Device.osBuildId);
-    //setDeviceId(Device.osBuildId || 'default-device-id'); // 디바이스 ID가 없을 경우 대체 값 설정
   }, []);
 
   // 위치 추적 시작/중지
   useEffect(() => {
     const intervalId = setInterval(() => {
-      
       getLocation(); // 내 위치 가져오기
       getAllUserLocations(); // 전체 사용자 위치 가져오기
-    }, 50000); // 100초마다 위치 업데이트
-    return () => clearInterval(intervalId);
-  }, []);
+    }, 30000); // 30초마다 위치 업데이트
 
+    return () => clearInterval(intervalId);
+  }, [currentLocation]);
+
+  // 전체 사용자 위치 가져오기
   function getAllUserLocations() {
     console.log('Device ID: ' + deviceId);
-    axios.post('https://79f6-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
+    axios.post('https://b64c-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
-      deviceId: deviceId
+      deviceId: deviceId,
+      email: email
     }, { withCredentials: true })
     .then((res) => {
       console.log('All user locations:', res.data.length);
       // 웹뷰에 사용자 위치를 업데이트합니다.
       if (webViewRef.current) {
+        // 사용자 위치 정보를 기반으로 마커 추가 JavaScript 코드 생성
         const markers = res.data.map(user => `
           var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
           var userMarker = new kakao.maps.Marker({
-            position: userLatLng
+            position: userLatLng,
+            title: '${user.deviceId}'
           });
           userMarker.setMap(map);
         `).join('\n');
@@ -65,6 +61,11 @@ export default function MainScreen() {
             if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
               throw new Error('Kakao Maps library is not loaded.');
             }
+            // 현재 위치 마커 업데이트
+            var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+            marker.setPosition(newLatLng);
+            map.setCenter(newLatLng);
+            // 모든 사용자 마커 추가
             ${markers}
             window.ReactNativeWebView.postMessage('All user locations updated');
           } catch (error) {
@@ -78,31 +79,6 @@ export default function MainScreen() {
       console.log('Error fetching all user locations:', error);
     });
   }
-
-  // 모든 유저 위치 가져오기
-  function getAllUserLocation(){
-    console.log('11111' + Device.osBuildId);
-    axios.post('https://79f6-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
-      latitude : currentLocation.latitude,
-      longitude : currentLocation.longitude,
-      deviceId : Device.osBuildId
-    }, {withCredentials: true})
-    .then((res) => {
-      console.log(res.data)
-      setAllUserLocations(res.data); // 서버로부터 받은 위치 데이터를 상태로 저장
-      updateAllMarkers(res.data); // 위치 데이터를 기반으로 마커 업데이트
-    })
-    .catch((error) => {console.log(error)});
-  }
-
-
-  // 지도 및 마커 업데이트
-  useEffect(() => {
-    if (currentLocation && mapLoaded) {
-      updateMapLocation(currentLocation.latitude, currentLocation.longitude);
-    }
-  }, [currentLocation, mapLoaded]);
-
 
   // 내 위치 가져오기
   const getLocation = () => {
@@ -120,6 +96,7 @@ export default function MainScreen() {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
+      updateMapLocation(location.coords.latitude, location.coords.longitude);
     })
     .catch(error => {
       console.error('Error getting location:', error);
@@ -171,37 +148,28 @@ export default function MainScreen() {
       try {
         var container = document.getElementById('map');
         var options = {
-          center: new kakao.maps.LatLng(35.5420093, 129.3382968),
+          center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           level: 5
         };
 
         map = new kakao.maps.Map(container, options);
 
-        // 테스트 마커 추가
-        var testLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-        var testMarker = new kakao.maps.Marker({
-          position: testLatLng,
-          title: '테스트 마커'
-        });
-        testMarker.setMap(map);
-
         // 현재 위치 마커 추가
-        var currentLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}+0.01);
-        var currentMarker = new kakao.maps.Marker({
-          position: currentLatLng,
+        marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           title: '현재 위치'
         });
-        currentMarker.setMap(map);
+        marker.setMap(map);
 
         var iwContent = '<div style="padding:5px;">Hello World! <br>' +
                       '<a href="https://map.kakao.com/link/map/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">큰지도보기</a> ' +
                       '<a href="https://map.kakao.com/link/to/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">길찾기</a></div>';
 
         infowindow = new kakao.maps.InfoWindow({
-          position: currentLatLng,
+          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
           content: iwContent
         });
-        infowindow.open(map, currentMarker);
+        infowindow.open(map, marker);
 
         console.log('Markers added successfully');
         window.ReactNativeWebView.postMessage('Map loaded successfully with markers');
@@ -216,18 +184,18 @@ export default function MainScreen() {
 </html>
 `;
 
-  
-
   const onWebViewMessage = (event) => {
     const message = event.nativeEvent.data;
     console.log('Message from WebView:', message);
-    if (message === 'Map loaded successfully') {
+    if (message === 'Map loaded successfully with markers') {
       setMapLoaded(true);
       if (currentLocation) {
         updateMapLocation(currentLocation.latitude, currentLocation.longitude);
       }
     } else if (message.startsWith('Error')) {
       console.error('WebView error:', message);
+    } else if (message === 'All user locations updated') {
+      console.log('All user locations updated successfully');
     }
   };
 
