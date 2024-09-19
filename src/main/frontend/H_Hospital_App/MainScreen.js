@@ -164,13 +164,11 @@ export default function MainScreen() {
       });
       window.currentMarker.setMap(map);
 
-<<<<<<< HEAD
       kakao.maps.event.addListener(map, 'click', function() {
         if (infowindow) {
           infowindow.close();
         }
       });
-=======
         // 정보 창에 표시할 내용 생성
         var iwContent = '<div style="padding:5px;">';
 
@@ -188,8 +186,6 @@ export default function MainScreen() {
         }
 
         iwContent += '</div>';
-
->>>>>>> ldh
 
       window.ReactNativeWebView.postMessage('Map loaded successfully');
     }
