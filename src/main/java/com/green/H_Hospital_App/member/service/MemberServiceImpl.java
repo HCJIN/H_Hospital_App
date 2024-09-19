@@ -29,4 +29,9 @@ public class MemberServiceImpl implements MemberService{
         sqlSession.update("memberMapper.loginInsert",memberVO);
     }
 
+    @Override
+    public MemberVO getMemberByEmail(String email) {
+        return sqlSession.selectOne("memberMapper.getMemberByEmail", email);
+    }
+
 }

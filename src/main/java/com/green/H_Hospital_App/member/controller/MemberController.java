@@ -5,7 +5,11 @@ import com.green.H_Hospital_App.member.vo.MemberVO;
 import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationService;
 import jakarta.annotation.Resource;
+import org.apache.logging.log4j.message.Message;
 import org.springframework.web.bind.annotation.*;
+
+
+import javax.management.Notification;
 
 @RestController
 @RequestMapping("/member")
@@ -44,5 +48,25 @@ public class MemberController {
     @PostMapping("/insertMember")
     public void insertMember(@RequestBody MemberVO memberVO) {
         memberService.insertMember(memberVO);
+    }
+
+    //이메일로 알림 전송
+    @PostMapping("/sendNotification")
+    public void sendNotification(@RequestBody String email) {
+        MemberVO member = memberService.getMemberByEmail(email);
+
+        if (member != null) {
+            try {
+                // 알림 전송 로직 추가
+                String title = "마커가 클릭되었습니다!";
+                String body = "새로운 알림";
+                // 실제 알림 전송 메서드 호출 필요
+                // 예: notificationService.sendNotification(member.getDeviceId(), title, body);
+            } catch (Exception e) {
+                // 예외 처리
+            }
+        } else {
+            // 사용자 찾기 실패 시 로깅
+        }
     }
 }

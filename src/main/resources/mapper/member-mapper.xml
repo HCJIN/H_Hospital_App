@@ -28,6 +28,19 @@
         AND MEM_PW = #{memPw};
     </select>
 
+    <select id="getMemberByEmail" resultMap="member">
+        SELECT MEM_NUM,
+        EMAIL,
+        MEM_PW,
+        MEM_NAME,
+        MEM_TEL,
+        MEM_ROLE,
+        latitude,
+        longitude
+        FROM HOSPITAL_MEMBER
+        WHERE EMAIL = #{email};
+    </select>
+
     <insert id="insertMember">
         INSERT INTO HOSPITAL_MEMBER(
         EMAIL,

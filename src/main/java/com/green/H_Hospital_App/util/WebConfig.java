@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // 모든 경로에 대해 CORS 설정
                 .allowedOrigins(
-                        "https://b64c-58-151-101-222.ngrok-free.app",
+                        "https://c982-58-151-101-222.ngrok-free.app",
                         "https://gendhne-hcjin-8081.exp.direct", // 앱의 출처 추가
                         "https://c8e8oiy-ldhee-8081.exp.direct"
                 )

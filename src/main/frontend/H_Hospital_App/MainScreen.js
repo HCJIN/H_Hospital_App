@@ -200,6 +200,18 @@ export default function MainScreen() {
     }
   };
 
+  //카카오맵 마커 클릭 이벤트 추가 
+  const sendNotification = (email) => {
+    axios.post(`${exteral_ip}/member/sendNotification`, { email })
+    .then((res) => {
+      Alert.alert('알림이 전송되었습니다.');
+    })
+    .catch((error) => {
+      console.log(error);
+      Alert.alert('알림 전송 실패: ' + error.message);
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>기기 간 거리 계산</Text>

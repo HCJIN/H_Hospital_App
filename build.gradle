@@ -30,6 +30,8 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-security'
 
 
+	implementation 'com.google.firebase:firebase-admin:9.0.0' // 최신 버전으로 교체하세요
+
 
 	// MyBatis와 MariaDB 연동
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
