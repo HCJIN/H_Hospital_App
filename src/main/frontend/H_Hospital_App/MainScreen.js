@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { WebView } from 'react-native-webview';
 import axios from 'axios';
 import * as Device from 'expo-device';
+import { exteral_ip } from './exteral_ip';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState({
@@ -36,7 +37,7 @@ export default function MainScreen() {
   // 전체 사용자 위치 가져오기
   function getAllUserLocations() {
     console.log('Device ID: ' + deviceId);
-    axios.post('https://b64c-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
+    axios.post(`${exteral_ip}/location/getAllUserLocation`, {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
       deviceId: deviceId,

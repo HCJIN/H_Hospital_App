@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service("memberService")
@@ -34,8 +35,9 @@ public class MemberServiceImpl implements MemberService{
         return sqlSession.selectOne("memberMapper.getMemberByEmail", email);
     }
 
-    public MemberVO getMemberInfo(String deviceId) {
-        return sqlSession.selectOne("memberMapper.getMemberInfo", deviceId);
+    @Override
+    public List<MemberVO> getMemberInfo(String deviceId) {
+        return sqlSession.selectList("memberMapper.getMemberInfo", deviceId);
     }
 
 }

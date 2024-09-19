@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.management.Notification;
+import java.util.List;
 
 @RestController
 @RequestMapping("/member")
@@ -72,7 +73,7 @@ public class MemberController {
     }
 
     @GetMapping("/getMemberInfo/{deviceId}")
-    public MemberVO getMemberInfo(@PathVariable("deviceId") String deviceId){
+    public List<MemberVO> getMemberInfo(@PathVariable("deviceId") String deviceId){
         return memberService.getMemberInfo(deviceId);
     }
 
