@@ -14,4 +14,7 @@ public interface MemberService {
 
     // 이메일로 멤버 찾기 메서드 추가
     MemberVO getMemberByEmail(String email);
+
+    // 마커 메세지 창에 적을 환자 정보
+    MemberVO getMemberInfo(String deviceId);
 }

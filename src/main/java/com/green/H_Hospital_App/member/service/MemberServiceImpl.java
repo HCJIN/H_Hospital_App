@@ -34,4 +34,8 @@ public class MemberServiceImpl implements MemberService{
         return sqlSession.selectOne("memberMapper.getMemberByEmail", email);
     }
 
+    public MemberVO getMemberInfo(String deviceId) {
+        return sqlSession.selectOne("memberMapper.getMemberInfo", deviceId);
+    }
+
 }

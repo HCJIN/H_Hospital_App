@@ -36,6 +36,7 @@ public class MemberController {
 
             // Update location information
             locationService.updateLocation(locationVO);
+            memberService.loginInsert(memberVO);
 
             // Optionally, return the MemberVO or a response indicating success
             return loggedInMember;
@@ -69,4 +70,10 @@ public class MemberController {
             // 사용자 찾기 실패 시 로깅
         }
     }
+
+    @GetMapping("/getMemberInfo/{deviceId}")
+    public MemberVO getMemberInfo(@PathVariable("deviceId") String deviceId){
+        return memberService.getMemberInfo(deviceId);
+    }
+
 }
