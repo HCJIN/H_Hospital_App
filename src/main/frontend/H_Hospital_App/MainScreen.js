@@ -7,31 +7,79 @@ import * as Device from 'expo-device';
 import { exteral_ip } from './exteral_ip';
 
 export default function MainScreen() {
-  const [currentLocation, setCurrentLocation] = useState({
-    latitude: 37.5665,
-    longitude: 126.978
-  });
-
+  const [currentLocation, setCurrentLocation] = useState(null);
   const [email, setEmail] = useState('');
   const [memberInfo, setMemberInfo] = useState({});
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [webViewError, setWebViewError] = useState(null);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
 
   useEffect(() => {
-    setDeviceId(Device.osBuildId || 'default-device-id');
+    (async () => {
+      const id = await Device.getDeviceIdAsync() || 'default-device-id';
+      setDeviceId(id);
+      await getLocation();
+    })();
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      getLocation();
+    if (mapLoaded && currentLocation) {
+      updateMapLocation(currentLocation.latitude, currentLocation.longitude);
       getAllUserLocations();
-    }, 60000);
+    }
+  }, [mapLoaded, currentLocation]);
 
-    return () => clearInterval(intervalId);
-  }, [currentLocation]);
+  const getLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('위치 권한이 거부되었습니다.');
+        return;
+      }
+      const location = await Location.getCurrentPositionAsync({});
+      setCurrentLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      });
+    } catch (error) {
+      console.error('Error getting location:', error);
+      Alert.alert('위치 정보를 가져오는 데 실패했습니다.');
+    }
+  };
+
+  const updateMapLocation = (latitude, longitude) => {
+    if (webViewRef.current) {
+      const script = `
+        try {
+          var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
+          if (typeof map !== 'undefined') {
+            map.setCenter(newLatLng);
+            if (typeof myLocationMarker === 'undefined') {
+              myLocationMarker = new kakao.maps.Marker({
+                position: newLatLng,
+                map: map,
+                title: '내 위치'
+              });
+            } else {
+              myLocationMarker.setPosition(newLatLng);
+            }
+          } else {
+            console.error('Map is undefined');
+            window.ReactNativeWebView.postMessage(JSON.stringify({type: 'error', message: 'Map is undefined'}));
+          }
+        } catch (error) {
+          console.error('Error in updateMapLocation:', error);
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'error', message: error.toString()}));
+        }
+      `;
+      webViewRef.current.injectJavaScript(script);
+    }
+  };
 
   function getAllUserLocations() {
+    if (!currentLocation) return;
+
     axios.post(`${exteral_ip}/location/getAllUserLocation`, {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -41,86 +89,67 @@ export default function MainScreen() {
     .then((res) => {
       if (webViewRef.current) {
         const markersScript = res.data.map((user, index) => `
-        var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
-        var userMarker = new kakao.maps.Marker({
-          position: userLatLng,
-          title: '${user.deviceId}'
-        });
-        userMarker.setMap(map);
-        markersArray.push(userMarker);
+          var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
+          var userMarker = new kakao.maps.Marker({
+            position: userLatLng,
+            title: '${user.deviceId}'
+          });
+          userMarker.setMap(map);
+          markersArray.push(userMarker);
 
-        kakao.maps.event.addListener(userMarker, 'click', function() {
-          if (infowindow) {
-            infowindow.close();
+          kakao.maps.event.addListener(userMarker, 'click', function() {
+            showInfoWindow(userMarker, '${user.deviceId}', '${user.deviceId}', '알 수 없음');
+          });
+        `).join('\n');
+
+        const script = `
+          try {
+            if (typeof markersArray !== 'undefined') {
+              markersArray.forEach(marker => marker.setMap(null));
+            }
+            markersArray = [];
+            ${markersScript}
+          } catch (error) {
+            console.error('Error in getAllUserLocations:', error);
+            window.ReactNativeWebView.postMessage(JSON.stringify({type: 'error', message: error.toString()}));
           }
-          var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
-          infowindow = new kakao.maps.InfoWindow({
-            content: iwContent
-          });
-          infowindow.open(map, userMarker);
-        });
-      `).join('\n');
-
-      const script = `
-        if (typeof markersArray !== 'undefined') {
-          markersArray.forEach(marker => marker.setMap(null));
-        }
-
-        markersArray = [];
-        var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-        if (typeof myLocationMarker === 'undefined') {
-          myLocationMarker = new kakao.maps.Marker({
-            position: newLatLng,
-            map: map,
-            title: '내 위치'
-          });
-        } else {
-          myLocationMarker.setPosition(newLatLng);
-        }
-        map.setCenter(newLatLng);
-        
-        ${markersScript}
-      `;
+        `;
         webViewRef.current.injectJavaScript(script);
       }
     })
     .catch((error) => {
       console.log('Error fetching all user locations:', error);
+      Alert.alert('사용자 위치 정보를 가져오는 데 실패했습니다.');
     });
   }
-  
-  
 
-  const getLocation = () => {
-    Location.requestForegroundPermissionsAsync()
-    .then(({ status }) => {
-      if (status !== 'granted') {
-        alert('위치 권한이 거부되었습니다.');
-        return;
+  const onWebViewMessage = (event) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'sendNotification') {
+        sendNotification(data.targetDeviceId);
+      } else if (data.type === 'mapLoaded') {
+        setMapLoaded(true);
+      } else if (data.type === 'error') {
+        setWebViewError(data.message);
+        Alert.alert('맵 오류', data.message);
       }
-      return Location.getCurrentPositionAsync({});
-    })
-    .then(location => {
-      setCurrentLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      });
-      updateMapLocation(location.coords.latitude, location.coords.longitude);
-    })
-    .catch(error => {
-      console.error('Error getting location:', error);
-    });
+    } catch (error) {
+      console.error('Error parsing WebView message:', error);
+    }
   };
 
-  const updateMapLocation = (latitude, longitude) => {
-    if (webViewRef.current && mapLoaded) {
-      const script = `
-        var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
-        map.setCenter(newLatLng);
-        marker.setPosition(newLatLng);
-      `;
-      webViewRef.current.injectJavaScript(script);
-    }
+  const sendNotification = (targetDeviceId) => {
+    const requestData = { targetDeviceId, senderDeviceId: deviceId };
+    console.log('Sending notification with data:', requestData);
+    axios.post(`${exteral_ip}/location/sendNotification`, requestData)
+        .then((res) => {
+            Alert.alert('알림이 전송되었습니다.');
+        })
+        .catch((error) => {
+            Alert.alert('알림 전송 실패: ' + error.message);
+            console.error('Error sending notification:', error);
+        });
   };
 
   const htmlContent = `
@@ -142,91 +171,53 @@ export default function MainScreen() {
     var map, myLocationMarker, infowindow, markersArray = [];
 
     function initMap() {
-      var container = document.getElementById('map');
-      var options = {
-        center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-        level: 5
-      };
+      try {
+        var container = document.getElementById('map');
+        var options = {
+          center: new kakao.maps.LatLng(37.5665, 126.978), // Default to Seoul
+          level: 5
+        };
 
-      map = new kakao.maps.Map(container, options);
+        map = new kakao.maps.Map(container, options);
 
-      myLocationMarker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-        title: '내 위치'
-      });
-      myLocationMarker.setMap(map);
-
-      kakao.maps.event.addListener(myLocationMarker, 'click', function() {
-        if (infowindow) {
-          infowindow.close();
-        }
-        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
-        infowindow = new kakao.maps.InfoWindow({
-          content: iwContent
+        kakao.maps.event.addListener(map, 'click', function() {
+          if (infowindow) {
+            infowindow.close();
+          }
         });
-        infowindow.open(map, myLocationMarker);
-      });
 
-      // 지도 클릭 시 열려있는 infowindow 닫기
-      kakao.maps.event.addListener(map, 'click', function() {
-        if (infowindow) {
-          infowindow.close();
-        }
-      });
-
-      window.ReactNativeWebView.postMessage('Map loaded successfully');
+        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'mapLoaded'}));
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'error', message: error.toString()}));
+      }
     }
-    kakao.maps.load(initMap);
+
+    function showInfoWindow(marker, deviceId, name, tel) {
+      if (infowindow) {
+        infowindow.close();
+      }
+      var iwContent = '<div style="padding:5px;">기기 ID: ' + deviceId + '<br>이름: ' + name + '<br>전화번호: ' + tel + '<br><button onclick="sendNotification(\'' + deviceId + '\')">알림 보내기</button></div>';
+      infowindow = new kakao.maps.InfoWindow({
+        content: iwContent
+      });
+      infowindow.open(map, marker);
+    }
 
     function sendNotification(targetDeviceId) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId || myLocationMarker.getTitle()}));
+      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId}));
     }
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('JavaScript error:', message, source, lineno, colno, error);
+      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'error', message: message}));
+    };
+
+    kakao.maps.load(initMap);
   </script>
 </body>
 </html>
-`;
-
-  const onWebViewMessage = (event) => {
-    const message = event.nativeEvent.data;
-    try {
-      const data = JSON.parse(message);
-      if (data.type === 'sendNotification') {
-        sendNotification(data.targetDeviceId);
-      }
-    } catch (error) {
-      if (message === 'Map loaded successfully with markers') {
-        setMapLoaded(true);
-        if (currentLocation) {
-          updateMapLocation(currentLocation.latitude, currentLocation.longitude);
-        }
-      }
-    }
-  };
-
-  const sendNotification = (targetDeviceId) => {
-    const requestData = { targetDeviceId, senderDeviceId: deviceId };
-    console.log('Sending notification with data:', requestData);
-    axios.post(`${exteral_ip}/location/sendNotification`, requestData)
-        .then((res) => {
-            Alert.alert('알림이 전송되었습니다.');
-        })
-        .catch((error) => {
-            Alert.alert('알림 전송 실패: ' + error.message);
-            console.error('Error sending notification:', error);
-        });
-};
-
-  useEffect(() => {
-    if (deviceId) {
-      axios.get(`${exteral_ip}/member/getMemberInfo/${deviceId}`)
-        .then((res) => {
-          setMemberInfo(res.data);
-        })
-        .catch((error) => {
-          console.log('Error fetching member info:', error);
-        });
-    }
-  }, [deviceId]);
+  `;
 
   return (
     <View style={styles.container}>
@@ -242,12 +233,24 @@ export default function MainScreen() {
 
       <Button title="내 위치 가져오기" onPress={getLocation} />
 
+      {webViewError && (
+        <Text style={styles.errorText}>에러: {webViewError}</Text>
+      )}
+
       <WebView
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: htmlContent }}
         onMessage={onWebViewMessage}
         style={{ flex: 1 }}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error('WebView error:', nativeEvent);
+        }}
+        onHttpError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error('WebView HTTP error:', nativeEvent);
+        }}
       />
     </View>
   );
@@ -268,5 +271,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
