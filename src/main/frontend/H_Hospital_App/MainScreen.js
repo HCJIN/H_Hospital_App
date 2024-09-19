@@ -14,7 +14,7 @@ export default function MainScreen() {
 
   const [distance, setDistance] = useState(null); 
   const [email, setEmail] = useState('');
-  const [memberInfo, setMemberInfo] = useState({});
+  const [memberInfo, setMemberInfo] = useState([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -162,7 +162,24 @@ export default function MainScreen() {
         });
         marker.setMap(map);
 
-        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br>';
+        // 정보 창에 표시할 내용 생성
+        var iwContent = '<div style="padding:5px;">';
+
+        // memberInfo 데이터가 있는 경우
+        if (window.__initialProps && window.__initialProps.memberInfo) {
+          var memberInfoList = JSON.parse(window.__initialProps.memberInfo);
+          memberInfoList.forEach(function(memberInfo) {
+            iwContent += '<div style="padding:5px;">' +
+              '환자 이름: ' + (memberInfo.memName ? memberInfo.memName : '알 수 없음') + '<br>' +
+              '전화번호: ' + (memberInfo.memTel ? memberInfo.memTel : '알 수 없음') + '<br>' +
+              '</div>';
+          });
+        } else {
+          iwContent += '<div>회원 정보 없음</div>';
+        }
+
+        iwContent += '</div>';
+
 
         infowindow = new kakao.maps.InfoWindow({
           position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
@@ -199,6 +216,19 @@ export default function MainScreen() {
     }
   };
 
+  // useEffect에서 HTML과 함께 memberInfo를 주입합니다.
+  useEffect(() => {
+    if (webViewRef.current) {
+      const data = JSON.stringify(memberInfo);
+      const script = `
+        window.__initialProps = {
+          memberInfo: '${data}'
+        };
+      `;
+      webViewRef.current.injectJavaScript(script);
+    }
+  }, [memberInfo]);
+
   const sendNotification = (email) => {
     axios.post(`${exteral_ip}/member/sendNotification`, { email })
     .then((res) => {
@@ -222,6 +252,8 @@ export default function MainScreen() {
         });
     }
   }, [deviceId]);
+
+  console.log(memberInfo)
 
   return (
     <View style={styles.container}>
