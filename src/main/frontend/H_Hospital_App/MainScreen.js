@@ -151,6 +151,7 @@ export default function MainScreen() {
       marker.setMap(map);
 
       kakao.maps.event.addListener(marker, 'click', function() {
+
         var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
         
         if (infowindow) {
@@ -162,15 +163,9 @@ export default function MainScreen() {
         });
         infowindow.open(map, marker);
       });
+        iwContent += '</div>';
 
-      kakao.maps.event.addListener(map, 'click', function() {
-        if (infowindow) {
-          infowindow.close();
-          infowindow = null;
-        }
-      });
-
-      window.ReactNativeWebView.postMessage('Map loaded successfully with markers');
+      window.ReactNativeWebView.postMessage('Map loaded successfully');
     }
     kakao.maps.load(initMap);
 
