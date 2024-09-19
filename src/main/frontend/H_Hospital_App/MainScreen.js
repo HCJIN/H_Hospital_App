@@ -13,7 +13,7 @@ export default function MainScreen() {
   });
 
   const [email, setEmail] = useState('');
-  const [memberInfo, setMemberInfo] = useState({});
+  const [memberInfo, setMemberInfo] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -26,12 +26,12 @@ export default function MainScreen() {
     const intervalId = setInterval(() => {
       getLocation();
       getAllUserLocations();
-    }, 60000);
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, [currentLocation]);
 
-  function getAllUserLocations() {
+  const getAllUserLocations = () => {
     axios.post(`${exteral_ip}/location/getAllUserLocation`, {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -40,56 +40,55 @@ export default function MainScreen() {
     }, { withCredentials: true })
     .then((res) => {
       if (webViewRef.current) {
-        const markersScript = res.data.map((user, index) => `
-        var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
-        var userMarker = new kakao.maps.Marker({
-          position: userLatLng,
-          title: '${user.deviceId}'
-        });
-        userMarker.setMap(map);
-        markersArray.push(userMarker);
+        const markersScript = res.data.map((user) => `
+          var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
+          var userMarker = new kakao.maps.Marker({
+            position: userLatLng,
+            title: '${user.deviceId}'
+          });
+          userMarker.setMap(map);
+          markersArray.push(userMarker);
 
-        kakao.maps.event.addListener(userMarker, 'click', function() {
-          if (infowindow) {
-            infowindow.close();
+          kakao.maps.event.addListener(userMarker, 'click', function() {
+            if (infowindow) {
+              infowindow.close();
+            }
+            var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
+            infowindow = new kakao.maps.InfoWindow({
+              content: iwContent
+            });
+            infowindow.open(map, userMarker);
+          });
+        `).join('\n');
+
+        const script = `
+          if (typeof markersArray !== 'undefined') {
+            markersArray.forEach(marker => marker.setMap(null));
           }
-          var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
-          infowindow = new kakao.maps.InfoWindow({
-            content: iwContent
-          });
-          infowindow.open(map, userMarker);
-        });
-      `).join('\n');
-
-      const script = `
-        if (typeof markersArray !== 'undefined') {
-          markersArray.forEach(marker => marker.setMap(null));
-        }
-
-        markersArray = [];
-        var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-        if (typeof myLocationMarker === 'undefined') {
-          myLocationMarker = new kakao.maps.Marker({
-            position: newLatLng,
-            map: map,
-            title: '내 위치'
-          });
-        } else {
-          myLocationMarker.setPosition(newLatLng);
-        }
-        map.setCenter(newLatLng);
-        
-        ${markersScript}
-      `;
+          markersArray = [];
+          
+          var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+          if (typeof myLocationMarker === 'undefined') {
+            myLocationMarker = new kakao.maps.Marker({
+              position: newLatLng,
+              map: map,
+              title: '내 위치'
+            });
+          } else {
+            myLocationMarker.setPosition(newLatLng);
+          }
+          map.setCenter(newLatLng);
+          
+          ${markersScript}
+          console.log('Markers script injected and executed.');
+        `;
         webViewRef.current.injectJavaScript(script);
       }
     })
     .catch((error) => {
       console.log('Error fetching all user locations:', error);
     });
-  }
-  
-  
+  };
 
   const getLocation = () => {
     Location.requestForegroundPermissionsAsync()
@@ -117,7 +116,9 @@ export default function MainScreen() {
       const script = `
         var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
         map.setCenter(newLatLng);
-        marker.setPosition(newLatLng);
+        if (myLocationMarker) {
+          myLocationMarker.setPosition(newLatLng);
+        }
       `;
       webViewRef.current.injectJavaScript(script);
     }
@@ -160,14 +161,16 @@ export default function MainScreen() {
         if (infowindow) {
           infowindow.close();
         }
-        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
+        var iwContent = '<div style="padding:5px;">' +
+          '환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br>' +
+          '전화번호: ${memberInfo ? memberInfo.memTel : '정보 없음'}<br>' +
+          '<button onclick="sendNotification()">알림 보내기</button></div>';
         infowindow = new kakao.maps.InfoWindow({
           content: iwContent
         });
         infowindow.open(map, myLocationMarker);
       });
 
-      // 지도 클릭 시 열려있는 infowindow 닫기
       kakao.maps.event.addListener(map, 'click', function() {
         if (infowindow) {
           infowindow.close();
@@ -194,7 +197,7 @@ export default function MainScreen() {
         sendNotification(data.targetDeviceId);
       }
     } catch (error) {
-      if (message === 'Map loaded successfully with markers') {
+      if (message === 'Map loaded successfully') {
         setMapLoaded(true);
         if (currentLocation) {
           updateMapLocation(currentLocation.latitude, currentLocation.longitude);
@@ -214,13 +217,14 @@ export default function MainScreen() {
             Alert.alert('알림 전송 실패: ' + error.message);
             console.error('Error sending notification:', error);
         });
-};
+  };
 
   useEffect(() => {
     if (deviceId) {
       axios.get(`${exteral_ip}/member/getMemberInfo/${deviceId}`)
         .then((res) => {
-          setMemberInfo(res.data);
+          console.log(res.data[0])
+          setMemberInfo(res.data[0]);
         })
         .catch((error) => {
           console.log('Error fetching member info:', error);
