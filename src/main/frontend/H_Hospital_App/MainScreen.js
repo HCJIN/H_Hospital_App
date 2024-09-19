@@ -40,41 +40,47 @@ export default function MainScreen() {
     }, { withCredentials: true })
     .then((res) => {
       if (webViewRef.current) {
-        const markers = res.data.map((user, index) => `
-          var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
-          var userMarker = new kakao.maps.Marker({
-            position: userLatLng,
-            title: '${user.deviceId}'
-          });
-          userMarker.setMap(map);
-          markersArray.push(userMarker); // 배열에 추가
-  
-          kakao.maps.event.addListener(userMarker, 'click', function() {
-            if (infowindow) {
-              infowindow.close();
-            }
-            var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification('${user.deviceId}')">알림 보내기</button></div>';
-            infowindow = new kakao.maps.InfoWindow({
-              content: iwContent
-            });
-            infowindow.open(map, userMarker);
-          });
-        `).join('\n');
-  
-        const script = `
-          // 이전 마커 모두 제거
-          if (markersArray) {
-            markersArray.forEach(marker => marker.setMap(null));
+        const markersScript = res.data.map((user, index) => `
+        var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
+        var userMarker = new kakao.maps.Marker({
+          position: userLatLng,
+          title: '${user.deviceId}'
+        });
+        userMarker.setMap(map);
+        markersArray.push(userMarker);
+
+        kakao.maps.event.addListener(userMarker, 'click', function() {
+          if (infowindow) {
+            infowindow.close();
           }
-  
-          var markersArray = []; // 마커 배열 초기화
-          var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-          marker.setPosition(newLatLng);
-          map.setCenter(newLatLng);
-          
-          // 새로운 마커 추가
-          ${markers}
-        `;
+          var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
+          infowindow = new kakao.maps.InfoWindow({
+            content: iwContent
+          });
+          infowindow.open(map, userMarker);
+        });
+      `).join('\n');
+
+      const script = `
+        if (typeof markersArray !== 'undefined') {
+          markersArray.forEach(marker => marker.setMap(null));
+        }
+
+        markersArray = [];
+        var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+        if (typeof myLocationMarker === 'undefined') {
+          myLocationMarker = new kakao.maps.Marker({
+            position: newLatLng,
+            map: map,
+            title: '내 위치'
+          });
+        } else {
+          myLocationMarker.setPosition(newLatLng);
+        }
+        map.setCenter(newLatLng);
+        
+        ${markersScript}
+      `;
         webViewRef.current.injectJavaScript(script);
       }
     })
@@ -133,7 +139,7 @@ export default function MainScreen() {
 <body>
   <div id="map"></div>
   <script>
-    var map, marker, infowindow;
+    var map, myLocationMarker, infowindow, markersArray = [];
 
     function initMap() {
       var container = document.getElementById('map');
@@ -144,33 +150,36 @@ export default function MainScreen() {
 
       map = new kakao.maps.Map(container, options);
 
-      marker = new kakao.maps.Marker({
+      myLocationMarker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-        title: '현재 위치'
+        title: '내 위치'
       });
-      marker.setMap(map);
+      myLocationMarker.setMap(map);
 
-      kakao.maps.event.addListener(marker, 'click', function() {
-
-        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
-        
+      kakao.maps.event.addListener(myLocationMarker, 'click', function() {
         if (infowindow) {
           infowindow.close();
         }
-        
+        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
         infowindow = new kakao.maps.InfoWindow({
           content: iwContent
         });
-        infowindow.open(map, marker);
+        infowindow.open(map, myLocationMarker);
       });
-        iwContent += '</div>';
+
+      // 지도 클릭 시 열려있는 infowindow 닫기
+      kakao.maps.event.addListener(map, 'click', function() {
+        if (infowindow) {
+          infowindow.close();
+        }
+      });
 
       window.ReactNativeWebView.postMessage('Map loaded successfully');
     }
     kakao.maps.load(initMap);
 
-    function sendNotification() {
-      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: marker.getTitle()}));
+    function sendNotification(targetDeviceId) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId || myLocationMarker.getTitle()}));
     }
   </script>
 </body>
