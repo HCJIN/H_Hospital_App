@@ -7,5 +7,5 @@ import java.util.List;
 public interface LocationService {
     void updateLocation(LocationVO locationVO);
     List<LocationVO> getAllUserLocations();
-    void sendNotification(String targetDeviceId, String senderDeviceId, String message);
+    void sendNotification(String targetDeviceId, String senderDeviceId);
 }

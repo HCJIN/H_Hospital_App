@@ -195,15 +195,17 @@ export default function MainScreen() {
   };
 
   const sendNotification = (targetDeviceId) => {
-    console.log(targetDeviceId, deviceId)
-    axios.post(`${exteral_ip}/location/sendNotification`, { targetDeviceId, senderDeviceId: deviceId })
-    .then((res) => {
-      Alert.alert('알림이 전송되었습니다.');
-    })
-    .catch((error) => {
-      Alert.alert('알림 전송 실패: ' + error.message);
-    });
-  };
+    const requestData = { targetDeviceId, senderDeviceId: deviceId };
+    console.log('Sending notification with data:', requestData);
+    axios.post(`${exteral_ip}/location/sendNotification`, requestData)
+        .then((res) => {
+            Alert.alert('알림이 전송되었습니다.');
+        })
+        .catch((error) => {
+            Alert.alert('알림 전송 실패: ' + error.message);
+            console.error('Error sending notification:', error);
+        });
+};
 
   useEffect(() => {
     if (deviceId) {
