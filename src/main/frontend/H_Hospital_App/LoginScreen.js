@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as Device from 'expo-device'; // 추가된 부분
+import { exteral_ip } from './exteral_ip';
 
 export default function LoginScreen({ navigation }) {
   const [member, setMember] = useState({ email: '', memPw: '' });
@@ -58,7 +59,7 @@ const selectMemberInfo = async () => {
   }
 
   // 로그인 기능 시작 (POST 요청)
-  axios.post('https://b64c-58-151-101-222.ngrok-free.app/member/getMember', {
+  axios.post(`${exteral_ip}/member/getMember`, {
     email: member.email, 
     memPw: member.memPw,
     deviceId: deviceId,

@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { exteral_ip } from './exteral_ip';
 
 // SignUpScreen 컴포넌트를 정의합니다.
 export default function SignUpScreen({ navigation }) {
@@ -32,7 +33,7 @@ export default function SignUpScreen({ navigation }) {
   function insertMemberData(){
     // const apiUrl = 'https://192.168.30.77:8080/member/insertMember'; // HTTPS 주소
   
-    axios.post('https://b64c-58-151-101-222.ngrok-free.app/member/insertMember', regMember)
+    axios.post(`${exteral_ip}/member/insertMember`, regMember)
     .then((res) => {
       alert('회원가입이 완료되었습니다.');
       navigation.navigate('Login');
