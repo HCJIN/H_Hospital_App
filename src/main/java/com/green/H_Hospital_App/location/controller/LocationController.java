@@ -51,4 +51,18 @@ public class LocationController {
 
         return allLocations;
     }
+
+    @PostMapping("/sendNotification")
+    public ResponseEntity<Map<String, String>> sendNotification(@RequestBody Map<String, String> payload) {
+        String targetDeviceId = payload.get("targetDeviceId");
+        String senderDeviceId = payload.get("senderDeviceId");
+
+        try {
+            locationService.sendNotification(targetDeviceId, senderDeviceId);
+            return ResponseEntity.ok(Map.of("message", "알림이 성공적으로 전송되었습니다."));
+        } catch (Exception e) {
+            log.error("알림 전송 중 오류 발생: ", e);
+            return ResponseEntity.internalServerError().body(Map.of("error", "알림 전송 중 오류가 발생했습니다."));
+        }
+    }
 }
