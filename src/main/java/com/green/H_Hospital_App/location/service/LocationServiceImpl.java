@@ -28,13 +28,13 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public void sendNotification(String targetDeviceId, String senderDeviceId, String message) {
-        log.info("Sending notification from device {} to device {}: {}", senderDeviceId, targetDeviceId, message);
+    public void sendNotification(String targetDeviceId, String senderDeviceId) {
+        log.info("Sending notification from device {} to device {}: {}", senderDeviceId, targetDeviceId);
 
         // 실제 알림 전송 로직 구현
         LocationVO targetLocation = locationMap.get(targetDeviceId);
         if (targetLocation != null) {
-            log.info("Notification sent to device {}: {}", targetDeviceId, message);
+            log.info("Notification sent to device {}: {}", targetDeviceId);
         } else {
             log.warn("Target device {} not found in location map", targetDeviceId);
         }
