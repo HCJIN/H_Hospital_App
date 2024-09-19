@@ -13,7 +13,7 @@ export default function MainScreen() {
   });
 
   const [email, setEmail] = useState('');
-  const [memberInfo, setMemberInfo] = useState([]);
+  const [memberInfo, setMemberInfo] = useState({});
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -40,53 +40,40 @@ export default function MainScreen() {
     }, { withCredentials: true })
     .then((res) => {
       if (webViewRef.current) {
-        const markers = res.data.map(user => `
+        const markers = res.data.map((user, index) => `
           var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
           var userMarker = new kakao.maps.Marker({
             position: userLatLng,
             title: '${user.deviceId}'
           });
           userMarker.setMap(map);
+          markersArray.push(userMarker); // 배열에 추가
   
           kakao.maps.event.addListener(userMarker, 'click', function() {
             if (infowindow) {
               infowindow.close();
             }
-            var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\\'${user.deviceId}\\')">알림 보내기</button></div>';
+            var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification('${user.deviceId}')">알림 보내기</button></div>';
             infowindow = new kakao.maps.InfoWindow({
               content: iwContent
             });
             infowindow.open(map, userMarker);
           });
-          return userMarker;
         `).join('\n');
   
         const script = `
-          // 이전 마커 제거
-          if (window.markersArray) {
-            window.markersArray.forEach(marker => marker.setMap(null));
+          // 이전 마커 모두 제거
+          if (markersArray) {
+            markersArray.forEach(marker => marker.setMap(null));
           }
-          
-          window.markersArray = []; // 마커 배열 초기화
+  
+          var markersArray = []; // 마커 배열 초기화
+          var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+          marker.setPosition(newLatLng);
+          map.setCenter(newLatLng);
           
           // 새로운 마커 추가
           ${markers}
-          
-          // 마커를 배열에 추가
-          window.markersArray = [${res.data.map((_, index) => `userMarker${index}`).join(', ')}];
-          
-          // 현재 위치 마커 업데이트
-          var currentLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
-          if (window.currentMarker) {
-            window.currentMarker.setPosition(currentLatLng);
-          } else {
-            window.currentMarker = new kakao.maps.Marker({
-              position: currentLatLng,
-              title: '현재 위치'
-            });
-            window.currentMarker.setMap(map);
-          }
-          map.setCenter(currentLatLng);
         `;
         webViewRef.current.injectJavaScript(script);
       }
@@ -95,6 +82,8 @@ export default function MainScreen() {
       console.log('Error fetching all user locations:', error);
     });
   }
+  
+  
 
   const getLocation = () => {
     Location.requestForegroundPermissionsAsync()
@@ -122,9 +111,7 @@ export default function MainScreen() {
       const script = `
         var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
         map.setCenter(newLatLng);
-        if (window.currentMarker) {
-          window.currentMarker.setPosition(newLatLng);
-        }
+        marker.setPosition(newLatLng);
       `;
       webViewRef.current.injectJavaScript(script);
     }
@@ -146,8 +133,7 @@ export default function MainScreen() {
 <body>
   <div id="map"></div>
   <script>
-    var map, infowindow;
-    window.markersArray = [];
+    var map, marker, infowindow;
 
     function initMap() {
       var container = document.getElementById('map');
@@ -158,50 +144,43 @@ export default function MainScreen() {
 
       map = new kakao.maps.Map(container, options);
 
-      window.currentMarker = new kakao.maps.Marker({
+      marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
         title: '현재 위치'
       });
-      window.currentMarker.setMap(map);
+      marker.setMap(map);
 
-<<<<<<< HEAD
-      kakao.maps.event.addListener(map, 'click', function() {
+      kakao.maps.event.addListener(marker, 'click', function() {
+        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br><button onclick="sendNotification()">알림 보내기</button></div>';
+        
         if (infowindow) {
           infowindow.close();
         }
+        
+        infowindow = new kakao.maps.InfoWindow({
+          content: iwContent
+        });
+        infowindow.open(map, marker);
       });
-=======
-        // 정보 창에 표시할 내용 생성
-        var iwContent = '<div style="padding:5px;">';
 
-        // memberInfo 데이터가 있는 경우
-        if (window.__initialProps && window.__initialProps.memberInfo) {
-          var memberInfoList = JSON.parse(window.__initialProps.memberInfo);
-          memberInfoList.forEach(function(memberInfo) {
-            iwContent += '<div style="padding:5px;">' +
-              '환자 이름: ' + (memberInfo.memName ? memberInfo.memName : '알 수 없음') + '<br>' +
-              '전화번호: ' + (memberInfo.memTel ? memberInfo.memTel : '알 수 없음') + '<br>' +
-              '</div>';
-          });
-        } else {
-          iwContent += '<div>회원 정보 없음</div>';
+      kakao.maps.event.addListener(map, 'click', function() {
+        if (infowindow) {
+          infowindow.close();
+          infowindow = null;
         }
+      });
 
-        iwContent += '</div>';
-
->>>>>>> ldh
-
-      window.ReactNativeWebView.postMessage('Map loaded successfully');
+      window.ReactNativeWebView.postMessage('Map loaded successfully with markers');
     }
     kakao.maps.load(initMap);
 
-    function sendNotification(targetDeviceId) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId}));
+    function sendNotification() {
+      window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: marker.getTitle()}));
     }
   </script>
 </body>
 </html>
-  `;
+`;
 
   const onWebViewMessage = (event) => {
     const message = event.nativeEvent.data;
@@ -211,7 +190,7 @@ export default function MainScreen() {
         sendNotification(data.targetDeviceId);
       }
     } catch (error) {
-      if (message === 'Map loaded successfully') {
+      if (message === 'Map loaded successfully with markers') {
         setMapLoaded(true);
         if (currentLocation) {
           updateMapLocation(currentLocation.latitude, currentLocation.longitude);
@@ -219,19 +198,6 @@ export default function MainScreen() {
       }
     }
   };
-
-  // useEffect에서 HTML과 함께 memberInfo를 주입합니다.
-  useEffect(() => {
-    if (webViewRef.current) {
-      const data = JSON.stringify(memberInfo);
-      const script = `
-        window.__initialProps = {
-          memberInfo: '${data}'
-        };
-      `;
-      webViewRef.current.injectJavaScript(script);
-    }
-  }, [memberInfo]);
 
   const sendNotification = (targetDeviceId) => {
     console.log(targetDeviceId, deviceId)
@@ -255,8 +221,6 @@ export default function MainScreen() {
         });
     }
   }, [deviceId]);
-
-  console.log(memberInfo)
 
   return (
     <View style={styles.container}>
