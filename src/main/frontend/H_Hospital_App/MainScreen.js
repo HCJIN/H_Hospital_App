@@ -4,7 +4,6 @@ import * as Location from 'expo-location';
 import { WebView } from 'react-native-webview';
 import axios from 'axios';
 import * as Device from 'expo-device';
-import { exteral_ip } from './exteral_ip';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState({
@@ -37,7 +36,7 @@ export default function MainScreen() {
   // 전체 사용자 위치 가져오기
   function getAllUserLocations() {
     console.log('Device ID: ' + deviceId);
-    axios.post(`${exteral_ip}/location/getAllUserLocation`, {
+    axios.post('https://b64c-58-151-101-222.ngrok-free.app/location/getAllUserLocation', {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
       deviceId: deviceId,
@@ -200,7 +199,6 @@ export default function MainScreen() {
     }
   };
 
-  //카카오맵 마커 클릭 이벤트 추가 
   const sendNotification = (email) => {
     axios.post(`${exteral_ip}/member/sendNotification`, { email })
     .then((res) => {
