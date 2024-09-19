@@ -8,10 +8,16 @@ import { exteral_ip } from './exteral_ip';
 
 export default function MainScreen() {
   const [currentLocation, setCurrentLocation] = useState({
+<<<<<<< HEAD
     latitude: 37.5665,
     longitude: 126.978
   });
 
+=======
+    latitude: 37.5665, // 기본 서울 위치
+    longitude: 126.978
+  });
+>>>>>>> hcj
   const [email, setEmail] = useState('');
   const [memberInfo, setMemberInfo] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -26,7 +32,11 @@ export default function MainScreen() {
     const intervalId = setInterval(() => {
       getLocation();
       getAllUserLocations();
+<<<<<<< HEAD
     }, 10000);
+=======
+    }, 60000);
+>>>>>>> hcj
 
     return () => clearInterval(intervalId);
   }, [currentLocation]);
@@ -54,9 +64,13 @@ export default function MainScreen() {
               infowindow.close();
             }
             var iwContent = '<div style="padding:5px;">기기 ID: ${user.deviceId}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
+<<<<<<< HEAD
             infowindow = new kakao.maps.InfoWindow({
               content: iwContent
             });
+=======
+            infowindow = new kakao.maps.InfoWindow({ content: iwContent });
+>>>>>>> hcj
             infowindow.open(map, userMarker);
           });
         `).join('\n');
@@ -66,7 +80,10 @@ export default function MainScreen() {
             markersArray.forEach(marker => marker.setMap(null));
           }
           markersArray = [];
+<<<<<<< HEAD
           
+=======
+>>>>>>> hcj
           var newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
           if (typeof myLocationMarker === 'undefined') {
             myLocationMarker = new kakao.maps.Marker({
@@ -78,9 +95,13 @@ export default function MainScreen() {
             myLocationMarker.setPosition(newLatLng);
           }
           map.setCenter(newLatLng);
+<<<<<<< HEAD
           
           ${markersScript}
           console.log('Markers script injected and executed.');
+=======
+          ${markersScript}
+>>>>>>> hcj
         `;
         webViewRef.current.injectJavaScript(script);
       }
@@ -88,6 +109,7 @@ export default function MainScreen() {
     .catch((error) => {
       console.log('Error fetching all user locations:', error);
     });
+<<<<<<< HEAD
   };
 
   const getLocation = () => {
@@ -124,24 +146,61 @@ export default function MainScreen() {
     }
   };
 
-  const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>카카오 맵</title>
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=acb92b206b6bd053c6440e8e1db3ff2a"></script>
-  <style>
-    body, html { height: 100%; margin: 0; padding: 0; }
-    #map { width: 100%; height: 100%; }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-  <script>
-    var map, myLocationMarker, infowindow, markersArray = [];
+=======
+  };
 
+  const getLocation = () => {
+    Location.requestForegroundPermissionsAsync()
+    .then(({ status }) => {
+      if (status !== 'granted') {
+        alert('위치 권한이 거부되었습니다.');
+        return;
+      }
+      return Location.getCurrentPositionAsync({});
+    })
+    .then(location => {
+      setCurrentLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      });
+      updateMapLocation(location.coords.latitude, location.coords.longitude);
+    })
+    .catch(error => {
+      console.error('Error getting location:', error);
+    });
+  };
+
+  const updateMapLocation = (latitude, longitude) => {
+    if (webViewRef.current && mapLoaded) {
+      const script = `
+        var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
+        map.setCenter(newLatLng);
+        myLocationMarker.setPosition(newLatLng);
+      `;
+      webViewRef.current.injectJavaScript(script);
+    }
+  };
+
+>>>>>>> hcj
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>카카오 맵</title>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=acb92b206b6bd053c6440e8e1db3ff2a"></script>
+    <style>
+      body, html { height: 100%; margin: 0; padding: 0; }
+      #map { width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var map, myLocationMarker, infowindow, markersArray = [];
+
+<<<<<<< HEAD
     function initMap() {
       var container = document.getElementById('map');
       var options = {
@@ -225,6 +284,79 @@ export default function MainScreen() {
         .then((res) => {
           console.log(res.data[0])
           setMemberInfo(res.data[0]);
+        })
+        .catch((error) => {
+          console.log('Error fetching member info:', error);
+        });
+    }
+  }, [deviceId]);
+=======
+      function initMap() {
+        var container = document.getElementById('map');
+        var options = {
+          center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
+          level: 5
+        };
+        map = new kakao.maps.Map(container, options);
+        
+        myLocationMarker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
+          title: '내 위치'
+        });
+        myLocationMarker.setMap(map);
+
+        kakao.maps.event.addListener(map, 'click', function() {
+          if (infowindow) {
+            infowindow.close();
+          }
+        });
+
+        window.ReactNativeWebView.postMessage('Map loaded successfully');
+      }
+      kakao.maps.load(initMap);
+
+      function sendNotification(targetDeviceId) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId}));
+      }
+    </script>
+  </body>
+  </html>
+  `;
+>>>>>>> hcj
+
+  const onWebViewMessage = (event) => {
+    const message = event.nativeEvent.data;
+    try {
+      const data = JSON.parse(message);
+      if (data.type === 'sendNotification') {
+        sendNotification(data.targetDeviceId);
+      }
+    } catch (error) {
+      if (message === 'Map loaded successfully') {
+        setMapLoaded(true);
+        updateMapLocation(currentLocation.latitude, currentLocation.longitude);
+      }
+    }
+  };
+
+  const sendNotification = (targetDeviceId) => {
+    const requestData = { targetDeviceId, senderDeviceId: deviceId };
+    console.log('Sending notification with data:', requestData);
+    axios.post(`${exteral_ip}/location/sendNotification`, requestData)
+      .then((res) => {
+        Alert.alert('알림이 전송되었습니다.');
+      })
+      .catch((error) => {
+        Alert.alert('알림 전송 실패: ' + error.message);
+        console.error('Error sending notification:', error);
+      });
+  };
+
+  useEffect(() => {
+    if (deviceId) {
+      axios.get(`${exteral_ip}/member/getMemberInfo/${deviceId}`)
+        .then((res) => {
+          setMemberInfo(res.data);
         })
         .catch((error) => {
           console.log('Error fetching member info:', error);
