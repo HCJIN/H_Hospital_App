@@ -32,6 +32,7 @@ public class MemberController {
 
             // Update location information
             locationService.updateLocation(locationVO);
+            memberService.loginInsert(memberVO);
 
             // Optionally, return the MemberVO or a response indicating success
             return loggedInMember;
@@ -45,4 +46,10 @@ public class MemberController {
     public void insertMember(@RequestBody MemberVO memberVO) {
         memberService.insertMember(memberVO);
     }
+
+    @GetMapping("/getMemberInfo/{deviceId}")
+    public MemberVO getMemberInfo(@PathVariable("deviceId") String deviceId){
+        return memberService.getMemberInfo(deviceId);
+    }
+
 }

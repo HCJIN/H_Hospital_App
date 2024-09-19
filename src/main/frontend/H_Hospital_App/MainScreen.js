@@ -14,7 +14,7 @@ export default function MainScreen() {
 
   const [distance, setDistance] = useState(null); 
   const [email, setEmail] = useState('');
-
+  const [memberInfo, setMemberInfo] = useState({});
   const [mapLoaded, setMapLoaded] = useState(false);
   const webViewRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
@@ -29,7 +29,7 @@ export default function MainScreen() {
     const intervalId = setInterval(() => {
       getLocation(); // 내 위치 가져오기
       getAllUserLocations(); // 전체 사용자 위치 가져오기
-    }, 30000); // 30초마다 위치 업데이트
+    }, 60000); // 30초마다 위치 업데이트
 
     return () => clearInterval(intervalId);
   }, [currentLocation]);
@@ -162,13 +162,11 @@ export default function MainScreen() {
         });
         marker.setMap(map);
 
-        var iwContent = '<div style="padding:5px;">Hello World! <br>' +
-                      '<a href="https://map.kakao.com/link/map/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">큰지도보기</a> ' +
-                      '<a href="https://map.kakao.com/link/to/Hello World!${currentLocation.latitude}, ${currentLocation.longitude}" style="color:blue" target="_blank">길찾기</a></div>';
+        var iwContent = '<div style="padding:5px;">환자 이름: ${(memberInfo && memberInfo.memName) || '알 수 없음'}<br>전화번호: ${(memberInfo && memberInfo.memTel) || '알 수 없음'}<br>';
 
         infowindow = new kakao.maps.InfoWindow({
           position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-          content: iwContent
+          content: iwContent  // iwContent로 infowindow 생성
         });
         infowindow.open(map, marker);
 
@@ -185,6 +183,7 @@ export default function MainScreen() {
 </html>
 `;
 
+  // 마커 위에 메세지 창
   const onWebViewMessage = (event) => {
     const message = event.nativeEvent.data;
     console.log('Message from WebView:', message);
@@ -199,6 +198,19 @@ export default function MainScreen() {
       console.log('All user locations updated successfully');
     }
   };
+
+  // 서버로부터 회원 정보 가져오기
+  useEffect(() => {
+    if (deviceId) {
+      axios.get(`${exteral_ip}/member/getMemberInfo/${deviceId}`)
+        .then((res) => {
+          setMemberInfo(res.data); // 받아온 회원 정보를 상태에 저장
+        })
+        .catch((error) => {
+          console.log('Error fetching member info:', error);
+        });
+    }
+  }, [deviceId]);
 
   return (
     <View style={styles.container}>

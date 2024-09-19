@@ -29,4 +29,9 @@ public class MemberServiceImpl implements MemberService{
         sqlSession.update("memberMapper.loginInsert",memberVO);
     }
 
+    @Override
+    public MemberVO getMemberInfo(String deviceId) {
+        return sqlSession.selectOne("memberMapper.getMemberInfo", deviceId);
+    }
+
 }

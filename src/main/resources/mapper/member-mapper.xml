@@ -48,6 +48,19 @@
         DEVICE_ID = #{deviceId},
         latitude = #{latitude},
         longitude = #{longitude}
+        WHERE EMAIL = #{email}
     </update>
+
+    <!--마커 메세지 창에 적어줄 정보-->
+    <select id="getMemberInfo" resultMap="member" >
+        SELECT MEM_NUM,
+        EMAIL,
+        MEM_NAME,
+        MEM_TEL,
+        latitude,
+        longitude
+        FROM HOSPITAL_MEMBER
+        WHERE DEVICE_ID = #{deviceId}
+    </select>
 
 </mapper>

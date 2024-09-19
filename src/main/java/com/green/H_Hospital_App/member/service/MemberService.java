@@ -11,4 +11,7 @@ public interface MemberService {
     MemberVO getMember(MemberVO memberVO);
 
     void loginInsert(MemberVO memberVO);
+
+    // 마커 메세지 창에 적을 환자 정보
+    MemberVO getMemberInfo(String deviceId);
 }
