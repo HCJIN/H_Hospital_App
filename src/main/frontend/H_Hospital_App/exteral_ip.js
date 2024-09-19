@@ -1,1 +1,1 @@
-export const exteral_ip = 'https://c982-58-151-101-222.ngrok-free.app';
+export const exteral_ip = 'https://e441-58-151-101-222.ngrok-free.app';
