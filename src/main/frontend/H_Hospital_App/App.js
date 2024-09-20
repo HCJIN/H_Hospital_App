@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar, StyleSheet, View, TouchableWithoutFeedback, Text, Image } from 'react-native'; // Image 추가
+import { StatusBar, StyleSheet, View, TouchableWithoutFeedback, Image, ImageBackground } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './LoginScreen';
@@ -10,7 +10,8 @@ import AdminScreen from './AdminScreen';
 const Stack = createStackNavigator();
 
 // 이미지 경로를 import합니다.
-const adImage = require('./assets/ad.PNG');
+const adImage = require('./assets/image/ad.png');
+const mainBG = require('./assets/image/bg.png');
 
 export default function App() {
   const [statusBarVisible, setStatusBarVisible] = useState(true);
@@ -33,39 +34,38 @@ export default function App() {
   return (
     <TouchableWithoutFeedback onPress={handleTouch}>
       <View style={styles.container}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ title: '로그인' }}
-            />
-            <Stack.Screen
-              name="SignUp"
-              component={SignUpScreen}
-              options={{ title: '회원가입' }}
-            />
-            <Stack.Screen 
-              name='Main'
-              component={MainScreen}
-              options={{ title: '메인화면' }}
-            />
-            <Stack.Screen 
-              name="AdminScreen"
-              component={AdminScreen}
-              options={{ title: '관리자 페이지' }}
-            />
-          </Stack.Navigator>
-          <StatusBar hidden={!statusBarVisible} />
-        </NavigationContainer>
-        
-        {/* 광고창 */}
-        <View style={styles.adContainer}>
-          <Image source={adImage} style={styles.adImage} />
-          <View style={styles.adContent}>
-            <Text style={styles.adText}>여기 광고가 들어갑니다!</Text>
+        <ImageBackground source={mainBG} style={styles.background}>
+          <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{ title: '로그인' }}
+              />
+              <Stack.Screen
+                name="SignUp"
+                component={SignUpScreen}
+                options={{ title: '회원가입' }}
+              />
+              <Stack.Screen 
+                name='Main'
+                component={MainScreen}
+                options={{ title: '메인화면' }}
+              />
+              <Stack.Screen 
+                name="AdminScreen"
+                component={AdminScreen}
+                options={{ title: '관리자 페이지' }}
+              />
+            </Stack.Navigator>
+            <StatusBar hidden={!statusBarVisible} />
+          </NavigationContainer>
+
+          {/* 광고창 */}
+          <View style={styles.adContainer}>
+            <Image source={adImage} style={styles.adImage} />
           </View>
-        </View>
+        </ImageBackground>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -75,26 +75,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  background: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ff0000'
+  },
   adContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 100, // 광고창 높이
-    backgroundColor: '#ffcc00', // 광고창 배경색
+    height: 70, // 광고창 높이
+    backgroundColor: '#1D2088', // 배경색 추가
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: 1, // 광고창이 위로 오도록 설정
   },
   adImage: {
     width: '100%', // 이미지 너비를 광고창에 맞춥니다.
     height: '100%', // 이미지 높이를 광고창에 맞춥니다.
-    resizeMode: 'cover', // 이미지를 커버 모드로 설정
-  },
-  adContent: {
-    // 광고 내용을 위한 스타일
-  },
-  adText: {
-    fontSize: 16,
-    color: '#000',
+    resizeMode: 'contain', // 이미지를 비율에 맞게 조정하여 잘리지 않도록 설정
   },
 });
+
