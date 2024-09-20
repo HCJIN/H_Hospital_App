@@ -37,7 +37,7 @@ export default function MainScreen() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation();
-    }, 30000); // 30초마다 getLocation() 호출
+    }, 10000); // 30초마다 getLocation() 호출
 
     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
   }, []);
@@ -54,33 +54,42 @@ export default function MainScreen() {
 
       // 서버로부터 받은 위치 데이터를 콘솔에 출력
       console.log('Received user locations from server:', res.data);
-
+      //myLocationMarker.setMap(null);
       // 서버로부터 받은 위치 데이터를 바탕으로 Kakao Maps에 마커 추가
       if (webViewRef.current && res.data) {
         const markersScript = res.data.map((user) => {
+          console.log(user.latitude, user.longitude)
           // deviceId가 없는 경우를 처리
           const markerTitle = user.deviceId || 'Unknown Device';
-          
+
           // 위치 데이터가 유효한지 확인
           if (user.latitude && user.longitude) {
             return `
               var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
               var userMarker = new kakao.maps.Marker({
+                map:map,
                 position: userLatLng,
                 title: '${markerTitle}'
               });
-              userMarker.setMap(map);
+              //userMarker.setMap(map);
               markersArray.push(userMarker);
 
-              // 마커 클릭 시 알림 버튼을 포함한 인포윈도우를 표시
-              kakao.maps.event.addListener(userMarker, 'click', function() {
-                if (infowindow) {
-                  infowindow.close();
-                }
-                var iwContent = '<div style="padding:5px;">기기 ID: ${markerTitle}<br><button onclick="sendNotification(\'${user.deviceId}\')">알림 보내기</button></div>';
-                infowindow = new kakao.maps.InfoWindow({ content: iwContent });
-                infowindow.open(map, userMarker);
+              //var iwContent = '<div style="padding:5px;">기기 ID: ${markerTitle}<br><button onclick="sendNotification(${user.deviceId})">알림 보내기</button></div>';
+              var iwContent = '<div style="padding:5px;">환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br><button type="button">알림 보내기</button></div>';
+
+              // 인포윈도우를 생성합니다
+              var infowindow = new kakao.maps.InfoWindow({
+                content : iwContent,
+                removable : true
               });
+
+              function aaa(map, marker, infowindow) {
+                return function() {
+                  infowindow.open(map, marker);
+                };
+              }
+
+              kakao.maps.event.addListener(userMarker, 'click', aaa(map, userMarker, infowindow));
             `;
           } else {
             return ''; // 위치 정보가 없으면 마커를 생성하지 않음
@@ -90,11 +99,12 @@ export default function MainScreen() {
         const script = `
           // 기존 마커가 있으면 모두 제거
           if (typeof markersArray !== 'undefined') {
+          console.log('삭제중');
             markersArray.forEach(marker => marker.setMap(null));
           }
-          markersArray = [];
-          ${markersScript}
-          console.log('Markers script injected and executed.');
+          //markersArray = [];
+          //${markersScript}
+          //console.log('Markers script injected and executed.');
         `;
         webViewRef.current.injectJavaScript(script); // Kakao Maps에 마커 업데이트
       }
@@ -238,13 +248,13 @@ export default function MainScreen() {
     const requestData = { targetDeviceId, senderDeviceId: deviceId };
     console.log('Sending notification with data:', requestData);
     axios.post(`${exteral_ip}/location/sendNotification`, requestData)
-        .then((res) => {
-            Alert.alert('알림이 전송되었습니다.');
-        })
-        .catch((error) => {
-            Alert.alert('알림 전송 실패: ' + error.message);
-            console.error('Error sending notification:', error);
-        });
+      .then((res) => {
+        Alert.alert('알림이 전송되었습니다.');
+      })
+      .catch((error) => {
+        Alert.alert('알림 전송 실패: ' + error.message);
+        console.error('Error sending notification:', error);
+      });
   };
 
   // 기기 ID에 해당하는 사용자 정보를 서버에서 가져오는 useEffect
