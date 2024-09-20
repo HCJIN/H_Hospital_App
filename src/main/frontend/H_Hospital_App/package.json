@@ -36,7 +36,8 @@
     "react-native-webview": "13.8.6",
     "use-interval": "^1.4.0",
     "uuid": "^10.0.0",
-    "expo-crypto": "~13.0.2"
+    "expo-crypto": "~13.0.2",
+    "expo-asset": "~10.0.10"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"
