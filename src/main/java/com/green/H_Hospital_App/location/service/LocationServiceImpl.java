@@ -29,8 +29,10 @@ public class LocationServiceImpl implements LocationService {
         else{
             String memName = locationMap.get(locationVO.getDeviceId()).getMemName();
             String email = locationMap.get(locationVO.getDeviceId()).getEmail();
+            String memTel = locationMap.get(locationVO.getDeviceId()).getMemTel();
             locationVO.setEmail(email);
             locationVO.setMemName(memName);
+            locationVO.setMemTel(memTel);
             System.out.println("!!!!" + locationVO);
 
             locationMap.put(locationVO.getDeviceId(), locationVO);

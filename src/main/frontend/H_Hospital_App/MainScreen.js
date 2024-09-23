@@ -34,13 +34,13 @@ export default function MainScreen() {
   }, []);
 
   // 위치 정보를 주기적으로 업데이트하기 위한 useEffect (30초 간격)
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      getLocation();
-    }, 10000); // 30초마다 getLocation() 호출
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     getLocation();
+  //   }, 20000); // 30초마다 getLocation() 호출
 
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
-  }, []);
+  //   return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
+  // }, []);
 
   // 서버에서 모든 사용자 위치를 가져오는 함수
   const getAllUserLocations = () => {
@@ -49,7 +49,9 @@ export default function MainScreen() {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
       deviceId: deviceId,
-      email: email
+      email: memberInfo ? memberInfo.email : email,
+      memName: memberInfo ? memberInfo.memName : '',
+      memTel : memberInfo ? memberInfo.memTel : ''
     }, { withCredentials: true })
     .then((res) => {
 
@@ -75,7 +77,7 @@ export default function MainScreen() {
               //userMarker.setMap(map);
               markersArray.push(userMarker);
 
-              var iwContent = '<div style="padding:5px;">기기 ID: ${markerTitle}<br><button onclick="sendNotification(${user.deviceId})">알림 보내기</button></div>';
+              var iwContent = '<div style="padding:5px;">이름: ${user.memName}<br> 전화번호: ${user.memTel}<button onclick="sendNotification(${user.deviceId})">알림 보내기2</button></div>';
               //var iwContent = '<div style="padding:5px;">환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br><button type="button">알림 보내기</button></div>';
 
               // 인포윈도우를 생성합니다
@@ -177,7 +179,7 @@ export default function MainScreen() {
         var container = document.getElementById('map');
         var options = {
           center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-          level: 5
+          level: 2
         };
 
         map = new kakao.maps.Map(container, options);
@@ -197,7 +199,7 @@ export default function MainScreen() {
           var iwContent = '<div style="padding:5px;">' +
             '환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br>' +
             '전화번호: ${memberInfo ? memberInfo.memTel : '정보 없음'}<br>' +
-            '<button onclick="sendNotification()">알림 보내기</button></div>';
+            '<button type="button" onclick="sendNotification()">알림 보내기1</button></div>';
           infowindow = new kakao.maps.InfoWindow({
             content: iwContent
           });
@@ -216,9 +218,10 @@ export default function MainScreen() {
       }
       kakao.maps.load(initMap);
 
-      // 알림 전송 함수
-      function sendNotification(targetDeviceId) {
-        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: targetDeviceId || myLocationMarker.getTitle()}));
+      // 알림 전송 함수targetDeviceId
+      function sendNotification(deviceId) {
+        alert(11);
+        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: '21G93'}));
       }
     </script>
   </body>
@@ -227,11 +230,15 @@ export default function MainScreen() {
 
   // WebView에서 메시지 수신 시 처리하는 함수
   const onWebViewMessage = (event) => {
+    
     const message = event.nativeEvent.data;
+    
     try {
       const data = JSON.parse(message);
+      alert(message);
       if (data.type === 'sendNotification') {
-        sendNotification(data.targetDeviceId); // 알림 보내기
+        alert(22);
+        sendNotification1(data.targetDeviceId); // 알림 보내기
       }
     } catch (error) {
       if (message === 'Map loaded successfully') {
@@ -239,13 +246,14 @@ export default function MainScreen() {
         if (currentLocation) {
           updateMapLocation(currentLocation.latitude, currentLocation.longitude); // 초기 위치 업데이트
         }
-        getAllUserLocations(); // 사용자 위치 가져오기
+        //getAllUserLocations(); // 사용자 위치 가져오기
       }
     }
   };
 
   // 알림을 서버로 전송하는 함수
-  const sendNotification = (targetDeviceId) => {
+  const sendNotification1 = (targetDeviceId) => {
+    alert(33);
     const requestData = { targetDeviceId, senderDeviceId: deviceId };
     console.log('Sending notification with data:', requestData);
     axios.post(`${exteral_ip}/location/sendNotification`, requestData)
@@ -294,6 +302,7 @@ export default function MainScreen() {
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: htmlContent }}
+        //onMessage={(e) => {onWebViewMessage(e)}}
         onMessage={onWebViewMessage}
         style={{ flex: 1 }}
         javaScriptEnabled={true}

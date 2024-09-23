@@ -38,6 +38,7 @@ public class MemberController {
             locationVO.setLongitude(memberVO.getLongitude());
             locationVO.setEmail(loggedInMember.getEmail());
             locationVO.setMemName(loggedInMember.getMemName());
+            locationVO.setMemTel(loggedInMember.getMemTel());
 
             // Update location information
             locationService.updateLocation(locationVO);

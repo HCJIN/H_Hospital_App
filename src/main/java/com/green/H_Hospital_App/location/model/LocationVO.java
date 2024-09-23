@@ -10,5 +10,5 @@ public class LocationVO {
     private double latitude;
     private double longitude;
     private String memName;
-
+    private String memTel;
 }
