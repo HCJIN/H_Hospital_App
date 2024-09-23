@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 
 // 이미지 경로를 import합니다.
 const adImage = require('./assets/image/ad.png');
-const mainBG = require('./assets/image/bg.png');
+// const mainBG = require('./assets/image/bg.png');
 
 export default function App() {
   const [statusBarVisible, setStatusBarVisible] = useState(true);
