@@ -37,7 +37,7 @@ export default function MainScreen() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation();
-    }, 20000); // 30초마다 getLocation() 호출
+    }, 10000); // 30초마다 getLocation() 호출
 
     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
   }, []);
