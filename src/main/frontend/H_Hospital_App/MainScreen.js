@@ -26,24 +26,25 @@ export default function MainScreen() {
   const webViewRef = useRef(null);
 
   // 현재 기기의 ID를 저장하는 상태
-  const [deviceId, setDeviceId] = useState('');
+  const [deviceId, setDeviceId] = useState(Device.osBuildId);
 
   // 컴포넌트가 처음 렌더링될 때 기기의 ID를 설정
   useEffect(() => {
-    setDeviceId(Device.osBuildId || 'default-device-id');
+    setDeviceId(Device.osBuildId);
   }, []);
 
   // 위치 정보를 주기적으로 업데이트하기 위한 useEffect (30초 간격)
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation();
-    }, 10000); // 30초마다 getLocation() 호출
+    }, 20000); // 30초마다 getLocation() 호출
 
     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
   }, []);
 
   // 서버에서 모든 사용자 위치를 가져오는 함수
   const getAllUserLocations = () => {
+    console.log('11111' + deviceId);
     axios.post(`${exteral_ip}/location/getAllUserLocation`, {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -58,7 +59,7 @@ export default function MainScreen() {
       // 서버로부터 받은 위치 데이터를 바탕으로 Kakao Maps에 마커 추가
       if (webViewRef.current && res.data) {
         const markersScript = res.data.map((user) => {
-          console.log(user.latitude, user.longitude)
+        
           // deviceId가 없는 경우를 처리
           const markerTitle = user.deviceId || 'Unknown Device';
 
@@ -74,8 +75,8 @@ export default function MainScreen() {
               //userMarker.setMap(map);
               markersArray.push(userMarker);
 
-              //var iwContent = '<div style="padding:5px;">기기 ID: ${markerTitle}<br><button onclick="sendNotification(${user.deviceId})">알림 보내기</button></div>';
-              var iwContent = '<div style="padding:5px;">환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br><button type="button">알림 보내기</button></div>';
+              var iwContent = '<div style="padding:5px;">기기 ID: ${markerTitle}<br><button onclick="sendNotification(${user.deviceId})">알림 보내기</button></div>';
+              //var iwContent = '<div style="padding:5px;">환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br><button type="button">알림 보내기</button></div>';
 
               // 인포윈도우를 생성합니다
               var infowindow = new kakao.maps.InfoWindow({
@@ -295,6 +296,15 @@ export default function MainScreen() {
         source={{ html: htmlContent }}
         onMessage={onWebViewMessage}
         style={{ flex: 1 }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+        scalesPageToFit={true}
+        mixedContentMode="compatibility"
+        allowFileAccess={true}
+        useWebKit={true}
+        cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT"
       />
     </View>
   );

@@ -9,4 +9,7 @@ public class LocationVO {
     private String email;
     private double latitude;
     private double longitude;
+
+    private String memName;
+
 }
