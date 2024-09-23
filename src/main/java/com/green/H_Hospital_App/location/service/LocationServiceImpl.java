@@ -18,8 +18,19 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void updateLocation(LocationVO locationVO) {
-        // 위치 정보 업데이트
-        locationMap.put(locationVO.getDeviceId(), locationVO);
+        //디바이스 번호가 일치하는 데이터 찾기
+        LocationVO vo = locationMap.get(locationVO.getDeviceId());
+        System.out.println("@@@" + vo);
+
+        //디바이스 번호가 일치하는 데이터가 없으면
+        if(vo == null){
+            locationMap.put(locationVO.getDeviceId(), locationVO);
+        }
+        else{
+            locationVO.setMemName(vo.getMemName());
+            locationVO.setEmail(vo.getEmail());
+            locationMap.put(locationVO.getDeviceId(), locationVO);
+        }
     }
 
     @Override
