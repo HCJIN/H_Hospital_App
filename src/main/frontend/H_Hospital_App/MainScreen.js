@@ -34,13 +34,13 @@ export default function MainScreen() {
   }, []);
 
   // 위치 정보를 주기적으로 업데이트하기 위한 useEffect (30초 간격)
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     getLocation();
-  //   }, 20000); // 30초마다 getLocation() 호출
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getLocation();
+    }, 10000); // 30초마다 getLocation() 호출
 
-  //   return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
-  // }, []);
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
+  }, []);
 
   // 서버에서 모든 사용자 위치를 가져오는 함수
   const getAllUserLocations = () => {
@@ -67,13 +67,46 @@ export default function MainScreen() {
 
           // 위치 데이터가 유효한지 확인
           if (user.latitude && user.longitude) {
+            console.log('sss' + deviceId, user.deviceId);
+
+            const isSameDevice = deviceId.trim() == user.deviceId.trim();
+
             return `
               var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
-              var userMarker = new kakao.maps.Marker({
-                map:map,
-                position: userLatLng,
-                title: '${markerTitle}'
-              });
+
+              // 마커 이미지의 이미지 주소입니다
+              var imageSrc1 = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markers_sprites2.png'
+              
+              var imageSrc2 = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+
+              // 마커 이미지의 이미지 크기 입니다
+              var imageSize = new kakao.maps.Size(24, 35); 
+
+              // 마커 이미지를 생성합니다    
+              var markerImage1 = new kakao.maps.MarkerImage(imageSrc1, imageSize); 
+              var markerImage2 = new kakao.maps.MarkerImage(imageSrc2, imageSize); 
+
+              if(!${isSameDevice}){
+                alert('11')
+
+                var userMarker = new kakao.maps.Marker({
+                  map:map,
+                  position: userLatLng,
+                  title: '${markerTitle}',
+                  image : markerImage1 // 마커 이미지 
+                });
+              }
+              else{
+                alert('12')
+
+                var userMarker = new kakao.maps.Marker({
+                  map:map,
+                  position: userLatLng,
+                  title: '${markerTitle}',
+                  image : markerImage2 // 마커 이미지 
+                });
+              }
+
               //userMarker.setMap(map);
               markersArray.push(userMarker);
 
@@ -184,27 +217,13 @@ export default function MainScreen() {
 
         map = new kakao.maps.Map(container, options);
 
-        // 내 위치 마커 생성
-        myLocationMarker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-          title: '내 위치'
-        });
-        myLocationMarker.setMap(map);
+        
 
-        // 내 위치 마커 클릭 시 인포윈도우 표시
-        kakao.maps.event.addListener(myLocationMarker, 'click', function() {
-          if (infowindow) {
-            infowindow.close();
-          }
-          var iwContent = '<div style="padding:5px;">' +
-            '환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br>' +
-            '전화번호: ${memberInfo ? memberInfo.memTel : '정보 없음'}<br>' +
-            '<button type="button" onclick="sendNotification()">알림 보내기1</button></div>';
-          infowindow = new kakao.maps.InfoWindow({
-            content: iwContent
-          });
-          infowindow.open(map, myLocationMarker);
-        });
+
+//////////////////////
+
+///////////////////
+
 
         // 지도 클릭 시 인포윈도우 닫기
         kakao.maps.event.addListener(map, 'click', function() {

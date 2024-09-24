@@ -56,6 +56,8 @@ public class LocationController {
     public ResponseEntity<Map<String, String>> sendNotification(@RequestBody Map<String, String> payload) {
         String targetDeviceId = payload.get("targetDeviceId");
         String senderDeviceId = payload.get("senderDeviceId");
+        System.out.println(targetDeviceId);
+        System.out.println(senderDeviceId);
 
         try {
             locationService.sendNotification(targetDeviceId, senderDeviceId);
