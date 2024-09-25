@@ -5,6 +5,7 @@ import { WebView } from 'react-native-webview'; // 웹 뷰를 사용하여 Kakao
 import axios from 'axios'; // HTTP 요청을 처리하기 위한 라이브러리
 import * as Device from 'expo-device'; // 기기 정보를 가져오기 위한 라이브러리
 import { exteral_ip } from './exteral_ip'; // 서버와 통신할 외부 IP 주소
+import useInterval from 'use-interval';
 
 export default function MainScreen() {
   // 현재 사용자의 위치를 저장하는 상태 (기본값: 서울 시청 좌표)
@@ -33,18 +34,29 @@ export default function MainScreen() {
     setDeviceId(Device.osBuildId);
   }, []);
 
-  // 위치 정보를 주기적으로 업데이트하기 위한 useEffect (30초 간격)
+  //위치 정보를 주기적으로 업데이트하기 위한 useEffect (30초 간격)
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      getLocation();
-    }, 10000); // 30초마다 getLocation() 호출
+    getLocation();
 
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
+    // const intervalId = setInterval(() => {
+    //  getLocation();
+    // }, 10000); // 30초마다 getLocation() 호출
+
+    // return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
   }, []);
+
+
+  useInterval(() => {
+    getLocation();
+  }, 10000);
+
+
+
+  const [allUserData, setAllUserData] = useState('');
+
 
   // 서버에서 모든 사용자 위치를 가져오는 함수
   const getAllUserLocations = () => {
-    console.log('11111' + deviceId);
     axios.post(`${exteral_ip}/location/getAllUserLocation`, {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -57,93 +69,50 @@ export default function MainScreen() {
 
       // 서버로부터 받은 위치 데이터를 콘솔에 출력
       console.log('Received user locations from server:', res.data);
+      const loadData = JSON.stringify(res.data);
+      setAllUserData(loadData);
+
+
+     
+      
+
+      
+
+      const script = `
+        const testData = JSON.parse('${loadData}');
+
+        const newLatLng = new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude});
+        map.setCenter(newLatLng);
+        
+
+        for(let i = 0 ; i < testData.length ; i++){
+          const newLatLng = new kakao.maps.LatLng(testData[i].latitude, testData[i].longitude)
+          
+          markersArray[i].setPosition(newLatLng);  
+        }
+
+        
+      `;
+      webViewRef.current.injectJavaScript(script);
+
       //myLocationMarker.setMap(null);
       // 서버로부터 받은 위치 데이터를 바탕으로 Kakao Maps에 마커 추가
-      if (webViewRef.current && res.data) {
-        const markersScript = res.data.map((user) => {
-        
-          // deviceId가 없는 경우를 처리
-          const markerTitle = user.deviceId || 'Unknown Device';
 
-          // 위치 데이터가 유효한지 확인
-          if (user.latitude && user.longitude) {
-            console.log('sss' + deviceId, user.deviceId);
 
-            const isSameDevice = deviceId.trim() == user.deviceId.trim();
+      // 마커 이미지의 이미지 주소입니다
+      // var imageSrc1 = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markers_sprites2.png'
+                    
+      // var imageSrc2 = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
 
-            return `
-              var userLatLng = new kakao.maps.LatLng(${user.latitude}, ${user.longitude});
+      // // 마커 이미지의 이미지 크기 입니다
+      // var imageSize = new kakao.maps.Size(24, 35); 
 
-              // 마커 이미지의 이미지 주소입니다
-              var imageSrc1 = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markers_sprites2.png'
-              
-              var imageSrc2 = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+      // // 마커 이미지를 생성합니다    
+      // var markerImage1 = new kakao.maps.MarkerImage(imageSrc1, imageSize); 
+      // var markerImage2 = new kakao.maps.MarkerImage(imageSrc2, imageSize); 
 
-              // 마커 이미지의 이미지 크기 입니다
-              var imageSize = new kakao.maps.Size(24, 35); 
 
-              // 마커 이미지를 생성합니다    
-              var markerImage1 = new kakao.maps.MarkerImage(imageSrc1, imageSize); 
-              var markerImage2 = new kakao.maps.MarkerImage(imageSrc2, imageSize); 
-
-              if(!${isSameDevice}){
-                alert('11')
-
-                var userMarker = new kakao.maps.Marker({
-                  map:map,
-                  position: userLatLng,
-                  title: '${markerTitle}',
-                  image : markerImage1 // 마커 이미지 
-                });
-              }
-              else{
-                alert('12')
-
-                var userMarker = new kakao.maps.Marker({
-                  map:map,
-                  position: userLatLng,
-                  title: '${markerTitle}',
-                  image : markerImage2 // 마커 이미지 
-                });
-              }
-
-              //userMarker.setMap(map);
-              markersArray.push(userMarker);
-
-              var iwContent = '<div style="padding:5px;">이름: ${user.memName}<br> 전화번호: ${user.memTel}<button onclick="sendNotification(${user.deviceId})">알림 보내기2</button></div>';
-              //var iwContent = '<div style="padding:5px;">환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br><button type="button">알림 보내기</button></div>';
-
-              // 인포윈도우를 생성합니다
-              var infowindow = new kakao.maps.InfoWindow({
-                content : iwContent,
-                removable : true
-              });
-
-              function aaa(map, marker, infowindow) {
-                return function() {
-                  infowindow.open(map, marker);
-                };
-              }
-
-              kakao.maps.event.addListener(userMarker, 'click', aaa(map, userMarker, infowindow));
-            `;
-          } else {
-            return ''; // 위치 정보가 없으면 마커를 생성하지 않음
-          }
-        }).join('\n');
-
-        const script = `
-          // 기존 마커가 있으면 모두 제거
-          if (typeof markersArray !== 'undefined') {
-          console.log('삭제중');
-            markersArray.forEach(marker => marker.setMap(null));
-          }
-          //markersArray = [];
-          //${markersScript}
-          //console.log('Markers script injected and executed.');
-        `;
-        webViewRef.current.injectJavaScript(script); // Kakao Maps에 마커 업데이트
-      }
+     
     })
     .catch((error) => {
       console.log('Error fetching all user locations:', error);
@@ -168,6 +137,7 @@ export default function MainScreen() {
       });
       updateMapLocation(location.coords.latitude, location.coords.longitude); // 지도에 새 위치 반영
       getAllUserLocations();  // 모든 사용자 위치 가져오기
+     
     })
     .catch(error => {
       console.error('Error getting location:', error);
@@ -175,55 +145,60 @@ export default function MainScreen() {
   };
 
   // 지도에서 현재 위치를 업데이트하는 함수
-  const updateMapLocation = (latitude, longitude) => {
-    if (webViewRef.current && mapLoaded) {
-      const script = `
-        var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
-        map.setCenter(newLatLng); // 지도의 중심을 새 위치로 이동
-        if (myLocationMarker) {
-          myLocationMarker.setPosition(newLatLng); // 내 위치 마커 업데이트
-        }
-      `;
-      webViewRef.current.injectJavaScript(script); // 지도에 업데이트된 스크립트 주입
-    }
-  };
+   const updateMapLocation = (latitude, longitude) => {
+  //   if (webViewRef.current && mapLoaded) {//userMarker
+  //     const script = `
+  //       var newLatLng = new kakao.maps.LatLng(${latitude}, ${longitude});
+  //       map.setCenter(newLatLng); // 지도의 중심을 새 위치로 이동
+  //       if (myLocationMarker) {
+  //         myLocationMarker.setPosition(newLatLng); // 내 위치 마커 업데이트
+  //       }
+          
+  //     `;
+  //     webViewRef.current.injectJavaScript(script); // 지도에 업데이트된 스크립트 주입
+  //   }
+   };
+
+
+
+   
 
   // Kakao Maps HTML 및 JavaScript 콘텐츠
   const htmlContent = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>카카오 맵</title>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=acb92b206b6bd053c6440e8e1db3ff2a"></script>
-    <style>
-      body, html { height: 100%; margin: 0; padding: 0; }
-      #map { width: 100%; height: 100%; }
-    </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-      var map, myLocationMarker, infowindow, markersArray = [];
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <title>카카오 맵</title>
+      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=acb92b206b6bd053c6440e8e1db3ff2a"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <style>
+        body, html { height: 100%; margin: 0; padding: 0; }
+        #map { width: 100%; height: 100%; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        //var map, myLocationMarker, infowindow, markersArray = [];
+        var map;
+        var markersArray = [];
+        var infowindow;
 
-      // 지도를 초기화하는 함수
-      function initMap() {
-        var container = document.getElementById('map');
-        var options = {
-          center: new kakao.maps.LatLng(${currentLocation.latitude}, ${currentLocation.longitude}),
-          level: 2
+        //------------------- 기본 지도 띄우기 ----------------//
+       
+        var mapContainer = document.getElementById('map');
+        mapOption = { 
+            center: new kakao.maps.LatLng(35.542013700410344, 129.33786620009485), // 지도의 중심좌표
+            level: 2 
         };
 
-        map = new kakao.maps.Map(container, options);
+        // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+        map = new kakao.maps.Map(mapContainer, mapOption);
 
-        
-
-
-//////////////////////
-
-///////////////////
-
+        //마커 생성
+        setMarker();
 
         // 지도 클릭 시 인포윈도우 닫기
         kakao.maps.event.addListener(map, 'click', function() {
@@ -232,19 +207,139 @@ export default function MainScreen() {
           }
         });
 
-        // 맵 로드 완료 시 React Native로 메시지 전송
-        window.ReactNativeWebView.postMessage('Map loaded successfully');
-      }
-      kakao.maps.load(initMap);
 
-      // 알림 전송 함수targetDeviceId
-      function sendNotification(deviceId) {
-        alert(11);
-        window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: '21G93'}));
-      }
-    </script>
-  </body>
-  </html>
+
+        //-------------------- 함수 선언 영역 -----------------------//
+        //--- 내 위치 마커 생성 ---//
+        function setMarker(){
+          // 마커 이미지의 이미지 주소입니다
+          var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+
+          // 마커 이미지의 이미지 크기 입니다
+          var imageSize = new kakao.maps.Size(24, 35); 
+
+          // 마커 이미지를 생성합니다    
+          var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+
+          //-------------------------------------------------
+          //현재 어플을 사용중인 유저
+          const userList = JSON.parse('${allUserData}');
+          
+          //유저수만큼 마커 생성
+          for(const user of userList){
+            const marker = new kakao.maps.Marker({
+              position: new kakao.maps.LatLng(user.latitude, user.longitude),
+              title: '내 위치',
+              image: '${deviceId}' == user.deviceId ? markerImage : null
+            });
+            marker.setMap(map);
+            markersArray.push(marker);
+
+
+
+            // 내 위치 마커 클릭 시 인포윈도우 표시
+            kakao.maps.event.addListener(marker, 'click', function() {
+              if (infowindow) {
+                infowindow.close();
+              }
+              
+              //나를 제외한 사용자에게만 거리 정보 띄우기
+              var iwContent;
+
+              if('${deviceId}' == user.deviceId){
+                iwContent = '<div style="padding:5px;">' +
+                  '환자 이름: ' + user.memName + '<br>' +
+                  '전화번호: ' + user.memTel + '<br>' +
+                  '<button type="button" onclick="sendNotification()">알림 보내기</button></div>';
+              }
+              else{
+                iwContent = '<div style="padding:5px;">' +
+                  '환자 이름: ' + user.memName + '<br>' +
+                  '전화번호: ' + user.memTel + '<br>' +
+                  '나와의 거리: ' + user.distance + '<br>' +
+                  '<button type="button" onclick="sendNotification()">알림 보내기</button></div>';
+              }
+              
+              
+              infowindow = new kakao.maps.InfoWindow({
+                content: iwContent
+              });
+
+              infowindow.open(map, marker);
+            });
+
+          }
+        }
+
+       
+       
+
+
+
+
+
+
+        // 지도를 초기화하는 함수
+        function initMap() {
+         drawInitMarker(test_map)
+
+          
+
+
+          //////////////////////
+        
+
+
+          setTimeout(() => {
+            const newLatLng = new kakao.maps.LatLng(35.542013700410344 + 0.01, 129.33786620009485 + 0.01)
+            myLocationMarker.setPosition(newLatLng);
+
+
+
+          }, 5000);
+
+
+          
+
+
+
+
+          // 내 위치 마커 클릭 시 인포윈도우 표시
+          kakao.maps.event.addListener(myLocationMarker, 'click', function() {
+            if (infowindow) {
+              infowindow.close();
+            }
+            var iwContent = '<div style="padding:5px;">' +
+              '환자 이름: ${memberInfo ? memberInfo.memName : '정보 없음'}<br>' +
+              '전화번호: ${memberInfo ? memberInfo.memTel : '정보 없음'}<br>' +
+              '<button type="button" onclick="sendNotification()">알림 보내기1</button></div>';
+            infowindow = new kakao.maps.InfoWindow({
+              content: iwContent
+            });
+            infowindow.open(map, myLocationMarker);
+          });
+
+
+              
+  ///////////////////
+
+
+          
+
+          // 맵 로드 완료 시 React Native로 메시지 전송
+          window.ReactNativeWebView.postMessage('Map loaded successfully');
+        }
+
+        //kakao.maps.load(initMap);
+
+        // 알림 전송 함수targetDeviceId
+        function sendNotification(deviceId) {
+          alert(11);
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'sendNotification', targetDeviceId: '21G93'}));
+        }
+      </script>
+    </body>
+    </html>
   `;
 
   // WebView에서 메시지 수신 시 처리하는 함수
@@ -265,7 +360,7 @@ export default function MainScreen() {
         if (currentLocation) {
           updateMapLocation(currentLocation.latitude, currentLocation.longitude); // 초기 위치 업데이트
         }
-        //getAllUserLocations(); // 사용자 위치 가져오기
+       // getAllUserLocations(); // 사용자 위치 가져오기
       }
     }
   };
@@ -317,7 +412,9 @@ export default function MainScreen() {
       <Button title="내 위치 가져오기" onPress={getLocation} />
 
       {/* Kakao Maps를 표시하는 WebView */}
-      <WebView
+      {
+        allUserData.length != 0 ?
+        <WebView
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: htmlContent }}
@@ -333,7 +430,15 @@ export default function MainScreen() {
         useWebKit={true}
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT"
-      />
+        allowsInlineMediaPlayback={true}
+  scrollEnabled={false} // 스크롤을 막고 줌을 가능하게 함
+  onShouldStartLoadWithRequest={() => true} // 모든 요청 허용
+  nestedScrollEnabled={true} // 내장된 스크롤 기능 허용
+ 
+      />:
+      null
+      }
+      
     </View>
   );
 }

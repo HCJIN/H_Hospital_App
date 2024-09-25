@@ -12,7 +12,8 @@ public class Haversine {
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS_KM * c; // 결과는 킬로미터 단위
+
+        return  Math.round(EARTH_RADIUS_KM * c * 1000 * 100) / 100.0; // 결과는 미터 단위
     }
 
 }

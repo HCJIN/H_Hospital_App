@@ -33,7 +33,6 @@ public class LocationServiceImpl implements LocationService {
             locationVO.setEmail(email);
             locationVO.setMemName(memName);
             locationVO.setMemTel(memTel);
-            System.out.println("!!!!" + locationVO);
 
             locationMap.put(locationVO.getDeviceId(), locationVO);
         }

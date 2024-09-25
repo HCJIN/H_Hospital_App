@@ -2,6 +2,7 @@ package com.green.H_Hospital_App.location.controller;
 
 import com.green.H_Hospital_App.location.model.LocationVO;
 import com.green.H_Hospital_App.location.service.LocationService;
+import com.green.H_Hospital_App.location.util.Haversine;
 import com.green.H_Hospital_App.member.vo.MemberVO;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
@@ -39,6 +40,7 @@ public class LocationController {
 
     @PostMapping("/getAllUserLocation")
     public List<LocationVO> getAllUserLocation(@RequestBody LocationVO locationVO) {
+    //public void getAllUserLocation(@RequestBody LocationVO locationVO) {
         // 로그 추가
         log.info("Received LocationVO: {}", locationVO);
 
@@ -48,6 +50,30 @@ public class LocationController {
         // 모든 사용자 위치 조회
         List<LocationVO> allLocations = locationService.getAllUserLocations();
         log.info("All User Locations: {}", allLocations);
+
+
+
+        // ----------- 거리 계산 ----------//
+        LocationVO myLocation = null; //나의 위치
+        for(LocationVO location : allLocations){
+            if(location.getDeviceId().equals(locationVO.getDeviceId())){
+                myLocation = location;
+                break;
+            }
+        }
+
+        //나의 위도 경도
+        for(LocationVO location : allLocations){
+            //나를 제외한 사람들만 거리 계산
+            if(!location.getDeviceId().equals(locationVO.getDeviceId())){
+                //다른 사람의 위도 경도
+                double distance = Haversine.calculateDistance(myLocation.getLatitude(), myLocation.getLongitude(), location.getLatitude(), location.getLongitude());
+                location.setDistance(distance);
+                System.out.println("거리 : " + distance);
+            }
+        }
+
+
 
         return allLocations;
     }

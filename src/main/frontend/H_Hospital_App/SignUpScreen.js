@@ -142,18 +142,27 @@ const styles = StyleSheet.create({
     flex: 1, // 전체 화면 사용
     justifyContent: 'center', // 수직 방향 중앙 정렬
     alignItems: 'center', // 수평 방향 중앙 정렬
+    backgroundColor: '#F9F9F9', // iOS에서 더 깔끔한 느낌을 주는 백그라운드 색상
   },
   text: {
     fontSize: 24, // 텍스트 크기 설정
     marginBottom: 20, // 텍스트와 버튼 사이의 간격 설정
+    color: '#333', // iOS에서 깔끔한 텍스트 색상
+    fontWeight: '500', // iOS의 기본 글꼴 가중치
   },
   input: {
     height: 40, // 입력 필드 높이 설정
-    borderColor: 'gray', // 입력 필드 테두리 색상 설정
+    borderColor: '#ddd', // iOS에서 연한 테두리 색상
     borderWidth: 1, // 입력 필드 테두리 두께 설정
     marginBottom: 15, // 입력 필드 사이 간격 설정
     width: '80%', // 입력 필드 너비 설정
     paddingHorizontal: 10, // 좌우 패딩 설정
+    backgroundColor: '#FFF', // 입력 필드 배경색을 하얗게 설정
+    borderRadius: 8, // iOS에서 모서리를 둥글게
+    shadowColor: '#000', // iOS에서 약간의 그림자 효과
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   emailContainer: {
     flexDirection: 'row', // 이메일 입력 필드와 버튼 가로 배치
@@ -164,9 +173,23 @@ const styles = StyleSheet.create({
   emailInput: {
     flex: 1, // 입력 필드가 가능한 많은 공간 차지
     height: 40, // 입력 필드 높이 설정
-    borderColor: 'gray', // 입력 필드 테두리 색상 설정
+    borderColor: '#ddd', // iOS에서 연한 테두리 색상
     borderWidth: 1, // 입력 필드 테두리 두께 설정
     marginRight: 10, // 입력 필드와 버튼 사이의 간격 설정
     paddingHorizontal: 10, // 좌우 패딩 설정
+    backgroundColor: '#FFF', // 입력 필드 배경색을 하얗게 설정
+    borderRadius: 8, // 모서리를 둥글게 설정
+    shadowColor: '#000', // 그림자 효과
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  button: {
+    backgroundColor: '#007AFF', // iOS에서 기본적인 파란 버튼 색상
+    color: '#FFF', // 버튼 텍스트 색상
+    padding: 10, // 버튼의 패딩
+    borderRadius: 8, // 모서리를 둥글게
+    textAlign: 'center', // 텍스트를 중앙에 배치
+    fontSize: 16, // 버튼 텍스트 크기
   },
 });
