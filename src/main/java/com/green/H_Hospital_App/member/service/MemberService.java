@@ -12,6 +12,8 @@ public interface MemberService {
     //로그인 진행
     MemberVO getMember(MemberVO memberVO);
 
+    boolean selectEmail(String email);
+
     void loginInsert(MemberVO memberVO);
 
     // 이메일로 멤버 찾기 메서드 추가

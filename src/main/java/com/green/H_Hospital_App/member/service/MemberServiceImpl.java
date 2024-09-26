@@ -26,6 +26,12 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public boolean selectEmail(String email) {
+        int count = sqlSession.selectOne("memberMapper.selectEmail", email);
+        return count > 0;  // 이메일이 있으면 true 반환
+    }
+
+    @Override
     public void loginInsert(MemberVO memberVO) {
         sqlSession.update("memberMapper.loginInsert",memberVO);
     }

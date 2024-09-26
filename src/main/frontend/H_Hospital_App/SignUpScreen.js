@@ -1,11 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native';
 import { exteral_ip } from './exteral_ip';
 
 // SignUpScreen 컴포넌트를 정의합니다.
 export default function SignUpScreen({ navigation }) {
+  
   // 회원 가입할 때 사용할 상태를 정의합니다.
   const [regMember, setRegMember] = useState({
     memName: '',
@@ -22,7 +23,26 @@ export default function SignUpScreen({ navigation }) {
     }));
   };
 
-  console.log(regMember); // 현재 상태를 콘솔에 출력합니다.
+  // 확인 버튼을 눌렀을 때, 이메일 사용 가능 여부
+  function booleanEmail(){
+    axios.get(`${exteral_ip}/member/selectEmail/${regMember.email}`)
+    .then((res) => {
+      console.log(res.data)
+      if(res.data){
+        alert('사용 불가능한 아이디 입니다.')
+      }
+      else{
+        // 이메일 유효성 검사
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 정규 표현식
+        if (!regMember.email || !emailRegex.test(regMember.email)) {
+          Alert.alert('유효한 이메일 주소를 입력하십시오.'); // 유효하지 않은 이메일의 경우 경고
+          return false;
+        }
+        alert('사용 가능한 아이디입니다.')
+      }
+    })
+    .catch((error) => {console.log(error)})
+  }
 
   // 유효성 검사 함수
   const validateInputs = () => {
@@ -31,13 +51,6 @@ export default function SignUpScreen({ navigation }) {
     // 이름 유효성 검사
     if (!memName) {
       Alert.alert('이름을 입력하십시오.'); // 이름이 비어있는 경우 경고
-      return false;
-    }
-
-    // 이메일 유효성 검사
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 정규 표현식
-    if (!email || !emailRegex.test(email)) {
-      Alert.alert('유효한 이메일 주소를 입력하십시오.'); // 유효하지 않은 이메일의 경우 경고
       return false;
     }
 
@@ -62,14 +75,14 @@ export default function SignUpScreen({ navigation }) {
 
     // 회원가입 요청을 서버에 전송합니다.
     axios.post(`${exteral_ip}/member/insertMember`, regMember)
-      .then((res) => {
-        alert('회원가입이 완료되었습니다.'); // 성공 메시지
-        navigation.navigate('Login'); // 로그인 화면으로 이동
-      })
-      .catch((error) => {
-        console.log(error); // 오류 로그
-        Alert.alert('회원가입에 실패했습니다. 다시 시도해 주세요.'); // 실패 메시지
-      });
+    .then((res) => {
+      alert('회원가입이 완료되었습니다.'); // 성공 메시지
+      navigation.navigate('Login'); // 로그인 화면으로 이동
+    })
+    .catch((error) => {
+      console.log(error); // 오류 로그
+      Alert.alert('회원가입에 실패했습니다. 다시 시도해 주세요.'); // 실패 메시지
+    });
   };
 
   return (
@@ -102,6 +115,7 @@ export default function SignUpScreen({ navigation }) {
         />
         <Button 
           title="확인" // 이메일 확인 버튼
+          onPress={() => {booleanEmail()}}
         />
       </View>
 

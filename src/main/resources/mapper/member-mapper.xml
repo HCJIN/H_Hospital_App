@@ -41,6 +41,12 @@
         WHERE EMAIL = #{email};
     </select>
 
+    <select id="selectEmail" resultType="int">
+        SELECT COUNT(*)
+        FROM HOSPITAL_MEMBER
+        WHERE EMAIL = #{email};
+    </select>
+
     <insert id="insertMember">
         INSERT INTO HOSPITAL_MEMBER(
         EMAIL,

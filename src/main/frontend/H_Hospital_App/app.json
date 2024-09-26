@@ -1,5 +1,6 @@
 {
   "expo": {
+    "projectId": "abb48e6a-1224-40aa-9e46-e5205ab03894",
     "name": "H_Hospital_App",
     "slug": "H_Hospital_App",
     "version": "1.0.0",
@@ -26,6 +27,11 @@
     },
     "plugins": [
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "abb48e6a-1224-40aa-9e46-e5205ab03894"
+      }
+    }
   }
 }

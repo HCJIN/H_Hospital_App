@@ -47,9 +47,13 @@ public class MemberController {
             // Optionally, return the MemberVO or a response indicating success
             return loggedInMember;
         }
-
         // 로그인 실패 시 null 반환
         return null;
+    }
+
+    @GetMapping("/selectEmail/{email}")
+    public boolean selectEmail(@PathVariable("email") String email){
+        return memberService.selectEmail(email);
     }
 
     @PostMapping("/insertMember")

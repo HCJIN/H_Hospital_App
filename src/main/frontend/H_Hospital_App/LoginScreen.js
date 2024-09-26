@@ -11,8 +11,8 @@ export default function LoginScreen({ navigation }) {
   const [memberData, setMemberData] = useState({});
   const [deviceId, setDeviceId] = useState(''); // 추가된 부분
   const [currentLocation, setCurrentLocation] = useState({
-    latitude: 37.5665,
-    longitude: 126.978
+    latitude: 35.54208372658168,
+    longitude: 129.33785186095912
   });
 
   const handleChange = (field, value) => {
@@ -28,71 +28,50 @@ export default function LoginScreen({ navigation }) {
 
   useEffect(() => {
     setDeviceId(Device.osBuildId || 'default-device-id');
-    getLocation();
   }, []);
   
-  // 내 위치 가져오기
-  const getLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        alert('위치 권한이 거부되었습니다.');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      console.log('Current location:', location);
-      setCurrentLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      });
-    } catch (error) {
-      console.error('Error getting location:', error);
-    }
-  };
-
   // 로그인 버튼 클릭 시 실행 함수
-const selectMemberInfo = async () => {
-  // 이메일과 비밀번호가 비어 있으면 알림 표시
-  if (!member.email || !member.memPw) {
-    alert('이메일과 비밀번호를 입력해주세요.');
-    return;
-  }
-
-  // 로그인 기능 시작 (POST 요청)
-  axios.post(`${exteral_ip}/member/getMember`, {
-    email: member.email, 
-    memPw: member.memPw,
-    deviceId: deviceId,
-    latitude: currentLocation.latitude,
-    longitude: currentLocation.longitude
-  }, {
-    withCredentials: true
-  })
-  .then((res) => {
-    // 로그인 성공
-    if (res.data != null) {
-      // 조회한 로그인 정보를 memberData 변수에 저장
-      setMemberData(res.data);
-
-      // 로그인한 유저의 권한에 따라 페이지 이동
-      if (res.data.memRole === 'ADMIN') {
-        console.log('go AdminScreen');
-        navigation.navigate('AdminScreen');
-      } else {
-        console.log('go Main');
-        navigation.navigate('Main');
-      }
-    } 
-    // 로그인 실패
-    else {
-      alert('로그인에 실패하였습니다.');
+  const selectMemberInfo = async () => {
+    // 이메일과 비밀번호가 비어 있으면 알림 표시
+    if (!member.email || !member.memPw) {
+      alert('이메일과 비밀번호를 입력해주세요.');
+      return;
     }
-  })
-  .catch((error) => {
-    console.log('로그인 에러:', error);
-  });
-};
+
+    // 로그인 기능 시작 (POST 요청)
+    axios.post(`${exteral_ip}/member/getMember`, {
+      email: member.email, 
+      memPw: member.memPw,
+      deviceId: deviceId,
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude
+    }, {
+      withCredentials: true
+    })
+    .then((res) => {
+      // 로그인 성공
+      if (res.data != null) {
+        // 조회한 로그인 정보를 memberData 변수에 저장
+        setMemberData(res.data);
+
+        // 로그인한 유저의 권한에 따라 페이지 이동
+        if (res.data.memRole === 'ADMIN') {
+          console.log('go AdminScreen');
+          navigation.navigate('AdminScreen');
+        } else {
+          console.log('go Main');
+          navigation.navigate('Main');
+        }
+      } 
+      // 로그인 실패
+      else {
+        alert('로그인에 실패하였습니다.');
+      }
+    })
+    .catch((error) => {
+      console.log('로그인 에러:', error);
+    });
+  };
 
 
   // const getLocation = async () => {
